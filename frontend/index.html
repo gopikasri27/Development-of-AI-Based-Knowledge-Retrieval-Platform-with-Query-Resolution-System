@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Knowledge Retrieval Platform | Multi-Agent RAG</title>
+  <meta name="description" content="AI-Based Knowledge Retrieval Platform with Query Resolution System and Voice I/O">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar / Knowledge Ingestion -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>AutoRAG AI</h1>
+          <span class="badge">Milestone 1</span>
+        </div>
+      </div>
+
+      <!-- Ingestion Panel -->
+      <section class="ingestion-section">
+        <div class="section-header">
+          <h2>Knowledge Ingestion</h2>
+          <span class="tooltip-icon" title="Upload documents to embed into local ChromaDB">?</span>
+        </div>
+
+        <div class="upload-dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.csv" hidden>
+          <div class="upload-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="dropzone-title">Drag & drop or <span class="highlight">browse</span></p>
+          <p class="dropzone-subtitle">PDF, DOCX, TXT, CSV (Chunk: 500 / Overlap: 50)</p>
+        </div>
+
+        <div id="uploadProgress" class="upload-progress-container hidden">
+          <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar-fill"></div>
+          </div>
+          <p id="uploadStatusText" class="progress-status-text">Processing document...</p>
+        </div>
+
+        <div class="indexed-documents">
+          <div class="section-subheader">
+            <h3>Indexed Documents (<span id="docCount">0</span>)</h3>
+            <button id="refreshDocsBtn" class="icon-btn-small" title="Refresh list">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+          </div>
+          <ul id="documentsList" class="documents-list">
+            <li class="empty-docs-msg">No documents indexed yet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- System Architecture & Telemetry -->
+      <section class="system-stats">
+        <div class="stat-card">
+          <span class="stat-label">Vector Store</span>
+          <span class="stat-value" id="vectorStoreStatus">ChromaDB</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Embeddings</span>
+          <span class="stat-value">all-MiniLM-L6-v2</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">LLM Engine</span>
+          <span class="stat-value" id="llmEngineStatus">Gemini 1.5 Flash</span>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-workspace">
+      <header class="workspace-header">
+        <div class="header-info">
+          <h2>Query Resolution System</h2>
+          <p class="header-subtitle">Multi-Agent Orchestration • Grounded Citations • Voice I/O</p>
+        </div>
+        
+        <div class="header-actions">
+          <!-- TTS Toggle -->
+          <button id="ttsToggleBtn" class="action-btn" title="Toggle Voice Response (Text-to-Speech)">
+            <svg id="ttsIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <span>Voice Output: <strong id="ttsStatusText">ON</strong></span>
+          </button>
+          
+          <button id="clearChatBtn" class="action-btn secondary" title="Clear Conversation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            <span>Clear</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Live Agent Telemetry Pipeline Bar -->
+      <div id="pipelineContainer" class="pipeline-bar hidden">
+        <div class="pipeline-title">Agent Execution Flow:</div>
+        <div class="pipeline-steps">
+          <div class="step-pill" id="step-memory"><span class="step-num">1</span> Memory</div>
+          <div class="step-arrow">→</div>
+          <div class="step-pill" id="step-query"><span class="step-num">2</span> Query Parser</div>
+          <div class="step-arrow">→</div>
+          <div class="step-pill" id="step-retrieval"><span class="step-num">3</span> Retrieval</div>
+          <div class="step-arrow">→</div>
+          <div class="step-pill" id="step-clarification"><span class="step-num">4</span> Clarification</div>
+          <div class="step-arrow">→</div>
+          <div class="step-pill" id="step-response"><span class="step-num">5</span> Response Agent</div>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="messages-container" id="messagesContainer">
+        <!-- Welcome Screen -->
+        <div class="welcome-card" id="welcomeCard">
+          <div class="welcome-icon">⚡</div>
+          <h3>Welcome to the Multi-Agent RAG Platform</h3>
+          <p>Ask factual, procedural, or comparative questions against your ingested documents. You can type or use the microphone for voice input.</p>
+          
+          <div class="sample-queries">
+            <p class="sample-title">Try these sample queries (after uploading or indexing sample docs):</p>
+            <div class="query-chips">
+              <button class="chip" data-query="How many days of paid annual leave do employees receive per year?">📋 Annual Leave Policy</button>
+              <button class="chip" data-query="What are the step-by-step instructions to install CloudSync Pro?">⚙️ Installation Steps</button>
+              <button class="chip" data-query="Compare the throughput and encryption between Standard and Pro editions.">⚖️ Edition Comparison</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <footer class="chat-input-footer">
+        <div class="chat-input-box">
+          <textarea 
+            id="queryInput" 
+            placeholder="Ask a question or click the mic for voice input..." 
+            rows="1"
+            autocomplete="off"
+          ></textarea>
+          
+          <!-- Voice Recognition Mic Button -->
+          <button id="micBtn" class="mic-btn" title="Click to speak (Voice-to-Text)">
+            <svg id="micIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+            <div class="recording-pulse"></div>
+          </button>
+          
+          <!-- Send Button -->
+          <button id="sendBtn" class="send-btn" title="Send Query">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">
+          <span>Press <strong>Enter</strong> to send • <strong>Shift + Enter</strong> for new line • Voice input powered by Web Speech API</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
