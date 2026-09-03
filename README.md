@@ -1,182 +1,170 @@
 # AI-Based Knowledge Retrieval Platform with Query Resolution System
-## Multi-Agent RAG with Voice Input & Output (Milestone 1)
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/backend-Flask-green.svg)](https://flask.palletsprojects.com/)
-[![ChromaDB](https://img.shields.io/badge/vectorstore-ChromaDB-purple.svg)](https://www.trychroma.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-An enterprise-grade, full-stack **Multi-Agent Retrieval-Augmented Generation (RAG)** platform designed for intelligent document search, question resolution, and multimodal interaction (voice-to-text input and text-to-speech output).
+> ### 📌 Current Submission: Milestone 1
+> **Infosys Springboard Internship Project**
+> 
+> *This repository is being developed as part of the Infosys internship project. The current submission focuses on **Milestone 1**, covering RAG architecture study, multi-agent query resolution patterns, Web Speech API integration, system architecture design, and data specifications. Further implementation activities will be completed in subsequent milestones.*
 
 ---
 
-## 📑 Project Documentation Index
+## 🎯 Project Overview
 
-Detailed engineering documentation and evaluation reports are available in the [`docs/`](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs) directory:
+The **AI-Based Knowledge Retrieval Platform with Query Resolution System** is an enterprise-grade, full-stack knowledge retrieval solution designed to resolve user inquiries against internal documentation (PDF, DOCX, TXT, CSV). It combines **Retrieval-Augmented Generation (RAG)** with a **Multi-Agent Orchestration Pipeline** and **Multimodal Voice I/O (Web Speech API)** to deliver accurate, cited, and hallucination-free answers.
 
-- 📖 **[Research Notes & RAG Foundations](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs/research_notes.md)** (`docs/research_notes.md`) — RAG theory, 5-agent query resolution pattern, chunking strategy rationale, embedding selection, and Web Speech API mechanics.
-- 📐 **[System Architecture & Data Specifications](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs/architecture.md)** (`docs/architecture.md`) — Complete Mermaid architecture diagram, data flow walkthrough, and code schemas.
-- 🛠️ **[Technology Stack](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs/tech_stack.md)** (`docs/tech_stack.md`) — Comprehensive technology breakdown and justification table.
-- 📊 **[Retrieval Evaluation & Performance Report](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs/retrieval_evaluation.md)** (`docs/retrieval_evaluation.md`) — Validation results, Top-1/3/5 accuracy metrics (100%), out-of-domain detection, and Milestone 2 roadmap.
-
----
-
-## 🏛️ Architecture Overview
-
-The system employs a sequential **5-Agent Collaborative Query Resolution Pipeline**:
-
-```
-+-----------------------------------------------------------------------------------+
-|                            User Interface & Voice I/O                             |
-|       (Web Speech Recognition Input  •  Web Speech Synthesis Voice Output)        |
-+-----------------------------------------------------------------------------------+
-                                         │  POST /query
-                                         ▼
-+───────────────────────────────────────────────────────────────────────────────────+
-|                           Multi-Agent Orchestrator                                |
-|                                                                                   |
-|  1. Memory Agent ──► 2. Query Agent ──► 3. Retrieval Agent ──► 4. Clarification   |
-|     (Session Hist)      (Classify Intent)   (ChromaDB Top-5)      (Score < 0.50?) |
-|                                                                         │         |
-|                                                     ┌───────────────────┴──────┐  |
-|                                                     ▼                          ▼  |
-|                                            (Clarification Prompts)  5. Response   |
-|                                                                        (Gemini)   |
-+───────────────────────────────────────────────────────────────────────────────────+
-                                         │  Grounded Response + Sources
-                                         ▼
-+───────────────────────────────────────────────────────────────────────────────────+
-|                        Persistent Storage & Vector Engine                         |
-|     ChromaDB (HNSW Cosine Vector Store)  •  SQLite (Document Metadata & Logs)     |
-+───────────────────────────────────────────────────────────────────────────────────+
-```
-
-For complete architecture details and schemas, see **[docs/architecture.md](file:///c:/Users/Gopika%20Sri/OneDrive/Desktop/rag/docs/architecture.md)**.
+### 🌟 Milestone 1 Objectives
+1. **RAG Architecture Study**: Thorough analysis of retrieval-augmented generation mechanics, chunking trade-offs, vector embedding models, and similarity search algorithms.
+2. **Multi-Agent Query Resolution Patterns**: Design of specialized agent roles (Memory, Query Understanding, Retrieval, Clarification Guardrail, and Response Generation).
+3. **Web Speech API Integration**: Specification and client implementation of browser-native speech recognition (voice-to-text) and speech synthesis (text-to-speech).
+4. **System Architecture Design**: Formulation of an end-to-end multi-layer architecture with a formal graphical diagram.
+5. **Data Specifications**: Comprehensive schemas covering input, processing, retrieved, and output data contracts.
+6. **Frontend Prototype**: Delivery of a responsive, modern HTML5/CSS3/Vanilla JavaScript interface prototype.
 
 ---
 
-## 📁 Folder Structure
+## 📂 Repository Structure
 
-```
+The repository is organized with a dedicated `milestone-1/` directory alongside existing project assets:
+
+```text
 rag/
-├── backend/
-│   ├── app.py                      # Flask REST API & static asset server
-│   ├── requirements.txt            # Python dependencies
-│   ├── test_retrieval.py           # Evaluation test suite (Top-1/3/5 accuracy)
-│   ├── .env.example                # Environment variable configuration template
-│   ├── rag_metadata.db             # SQLite document and session persistence database
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── query_agent.py          # Query Understanding Agent (Intent/Type classifier)
-│   │   ├── retrieval_agent.py      # ChromaDB Semantic Retrieval Agent
-│   │   ├── clarification_agent.py  # Confidence & Ambiguity Guardrail Agent
-│   │   ├── response_agent.py       # Gemini API / Local Synthesis Response Agent
-│   │   ├── memory_agent.py         # Multi-turn Session Memory Agent
-│   │   └── orchestrator.py         # Sequential Pipeline Coordinator
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── extract_text.py         # PDF, DOCX, TXT, CSV text extraction & cleaning
-│   │   ├── chunking.py             # RecursiveCharacterTextSplitter with overlap
-│   │   ├── embeddings.py           # Sentence-Transformers & ChromaDB interface
-│   │   └── db.py                   # SQLite helper functions
-│   ├── sample_data/
-│   │   ├── hr_policy.txt           # Sample Domain 1: GlobalTech HR Policies
-│   │   └── product_manual.txt      # Sample Domain 2: CloudSync Pro Technical Manual
-│   ├── uploads/                    # Ingested user documents
-│   └── vectorstore/                # ChromaDB local persistent vector storage
-├── frontend/
-│   ├── index.html                  # Single-page UI with dropzone, chat, & pipeline bar
-│   ├── style.css                   # Modern dark glassmorphic styling & mic animations
-│   └── script.js                   # Client logic, Web Speech API, & citation cards
-├── docs/
-│   ├── research_notes.md           # Milestone 1.1: Theoretical & architectural research
-│   ├── architecture.md             # Milestone 1.2: Architecture diagrams & schemas
-│   ├── tech_stack.md               # Milestone 1.3: Technology stack table
-│   └── retrieval_evaluation.md     # Milestone 1.4: Evaluation metrics & results
-└── README.md
+├── milestone-1/                                # Milestone 1 Submission Directory
+│   ├── documentation/
+│   │   ├── RAG-Architecture.md                 # RAG theory, chunking, embeddings, workflow
+│   │   ├── Multi-Agent-Query-Resolution.md     # 5-Agent query resolution architecture & communication
+│   │   ├── Web-Speech-API.md                   # SpeechRecognition & SpeechSynthesis integration
+│   │   └── Data-Specifications.md              # Input, processing, retrieved, and output schemas
+│   │
+│   ├── architecture/
+│   │   ├── System-Architecture.png             # High-resolution architectural workflow diagram
+│   │   └── System-Architecture.md              # Detailed component & layer breakdown
+│   │
+│   └── frontend/
+│       ├── index.html                          # Milestone 1 UI prototype with voice controls & dropzone
+│       ├── style.css                           # Modern dark glassmorphic styling & responsive layout
+│       └── script.js                           # Web Speech API, agent animation, and resolution logic
+│
+├── backend/                                    # Existing backend implementation
+│   ├── app.py                                  # Flask REST API server
+│   ├── requirements.txt                        # Python dependencies
+│   ├── test_retrieval.py                       # Automated evaluation test suite
+│   ├── .env.example                            # Environment variables template
+│   ├── agents/                                 # Multi-agent implementations
+│   │   ├── memory_agent.py                     # Multi-turn conversation memory
+│   │   ├── query_agent.py                      # Query classifier & entity normalizer
+│   │   ├── retrieval_agent.py                  # ChromaDB vector retrieval
+│   │   ├── clarification_agent.py              # Confidence guardrail agent
+│   │   ├── response_agent.py                   # Grounded answer synthesis agent
+│   │   └── orchestrator.py                     # Pipeline coordinator
+│   ├── utils/                                  # Text extraction, chunking, and embedding utilities
+│   ├── sample_data/                            # Reference HR policies & product manuals
+│   ├── uploads/                                # Ingested documents storage
+│   └── vectorstore/                            # Persistent ChromaDB vector index
+│
+├── docs/                                       # Additional engineering documentation
+├── frontend/                                   # Application frontend assets
+└── README.md                                   # Root project documentation
 ```
 
 ---
 
-## ⚡ Setup & Installation
+## 📑 Milestone 1 Documentation Index
 
-### 1. Prerequisites
-- Python 3.9, 3.10, 3.11, or 3.12 installed
-- Google Chrome or Microsoft Edge (for native Web Speech API voice support)
+All primary Milestone 1 deliverables are located in the `milestone-1/` directory:
 
-### 2. Clone and Install Dependencies
-Navigate to the project root and install the required dependencies:
+| Document | File Path | Focus Areas |
+| :--- | :--- | :--- |
+| **RAG Architecture Study** | [`milestone-1/documentation/RAG-Architecture.md`](milestone-1/documentation/RAG-Architecture.md) | Ingestion, text preprocessing, chunking (500 chars / 50 overlap), `all-MiniLM-L6-v2` embeddings, ChromaDB HNSW vector indexing, cosine similarity retrieval, context injection, and LLM response generation. |
+| **Multi-Agent Query Resolution** | [`milestone-1/documentation/Multi-Agent-Query-Resolution.md`](milestone-1/documentation/Multi-Agent-Query-Resolution.md) | Proposed multi-agent architecture: Memory Agent, Query Understanding Agent, Retrieval Agent, Clarification Guardrail Agent (< 0.50 cutoff), and Response Agent with inter-agent state contracts. |
+| **Web Speech API Integration** | [`milestone-1/documentation/Web-Speech-API.md`](milestone-1/documentation/Web-Speech-API.md) | Browser-native `SpeechRecognition` voice-to-text input, `SpeechSynthesis` voice output, audio sanitization, browser compatibility matrix, and UI interaction workflow. |
+| **Data Specifications** | [`milestone-1/documentation/Data-Specifications.md`](milestone-1/documentation/Data-Specifications.md) | JSON schemas and specifications across 4 categories: Input Data (queries, uploads), Processing Data (metadata, chunks, 384-d vectors), Retrieved Data (matches, similarity), and Output Data (citations, telemetry). |
+| **System Architecture Specification** | [`milestone-1/architecture/System-Architecture.md`](milestone-1/architecture/System-Architecture.md) | Layer-by-layer architectural explanation covering Client UI, Input Layer, Query Processing, Query Resolution, RAG Pipeline, Vector Store, LLM, and Response Delivery. |
+| **System Architecture Diagram** | [`milestone-1/architecture/System-Architecture.png`](milestone-1/architecture/System-Architecture.png) | High-resolution diagram illustrating the complete end-to-end data flow from User input to Grounded Response. |
+| **Frontend Prototype** | [`milestone-1/frontend/index.html`](milestone-1/frontend/index.html) | Standalone interactive UI prototype with drag-and-drop document upload, live agent execution pipeline bar, voice input/output controls, and citation cards. |
+
+---
+
+## 🏛️ System Architecture Workflow
+
+```text
+User
+ ↓
+Web UI
+ ↓
+Text / Voice Input
+ ↓
+Query Processing
+ ↓
+Query Resolution
+ ↓
+RAG Pipeline
+ ↓
+Knowledge Base / Vector Store
+ ↓
+LLM
+ ↓
+Response
+ ↓
+Web UI
+```
+
+![System Architecture Diagram](milestone-1/architecture/System-Architecture.png)
+
+---
+
+## 💻 Technologies Used & Proposed
+
+| Component | Technology | Rationale / Purpose |
+| :--- | :--- | :--- |
+| **Frontend Core** | **HTML5, CSS3, Vanilla JavaScript** | Lightweight, framework-free client ensures fast page loads and simple deployment without node build pipelines. |
+| **Voice Interface** | **W3C Web Speech API** | Native in-browser speech recognition and audio synthesis without external cloud API costs or latency. |
+| **Backend API** | **Python 3.9+ & Flask** | Modular REST API layer facilitating asynchronous request dispatching and multi-agent coordination. |
+| **Vector Store** | **ChromaDB (HNSW Cosine Space)** | Embedded, disk-persistent vector database supporting high-throughput nearest neighbor search. |
+| **Embedding Model** | **`all-MiniLM-L6-v2` (Sentence-Transformers)** | 384-dimensional dense vectors; executes fast locally on CPU with zero external API fees. |
+| **Text Splitter** | **`RecursiveCharacterTextSplitter`** | Splits documents hierarchically on paragraph and sentence boundaries with 500-char size and 50-char overlap. |
+| **Language Model** | **Google Gemini 1.5 Flash** | High-throughput, context-window-efficient model for grounded response synthesis; includes offline local synthesis fallback. |
+| **Metadata DB** | **SQLite3** | Lightweight relational storage for document records, chunk counts, and multi-turn session history. |
+
+---
+
+## 🚀 How to Run & Verify the Project
+
+### 1. View the Milestone 1 Frontend Prototype
+The Milestone 1 prototype runs directly in any modern web browser (Chrome or Edge recommended for voice support):
+- Open `milestone-1/frontend/index.html` in your browser.
+- Try clicking the sample query chips (e.g. *Annual Leave Policy*, *Installation Steps*, *Edition Comparison*).
+- Click the **Microphone** button to test speech recognition.
+- Toggle **Voice Output** to hear synthesized speech.
+- Drag and drop documents into the upload dropzone to test the ingestion UI.
+
+### 2. Run the Automated Evaluation Suite
+To verify the retrieval accuracy and clarification thresholding on sample datasets:
 
 ```bash
+# Install dependencies
 pip install -r backend/requirements.txt
-```
 
-### 3. Configure Environment Variables
-Copy `backend/.env.example` to `backend/.env`:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-Edit `backend/.env` to configure your settings:
-```env
-# Google Gemini API Key (Optional: system uses local synthesis if omitted)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Model Selection
-GEMINI_MODEL=gemini-1.5-flash
-EMBEDDING_MODEL=all-MiniLM-L6-v2
-
-# Server Port
-PORT=5000
-FLASK_ENV=development
-```
-
----
-
-## 🧪 How to Test & Evaluate
-
-### Option A: Run the Automated Retrieval Evaluation Suite
-Run the test suite to evaluate Top-1, Top-3, and Top-5 accuracy across factual, procedural, comparative, and unavailable-information queries:
-
-```bash
+# Execute retrieval evaluation
 python backend/test_retrieval.py
 ```
 
 **Evaluation Results Highlights:**
-- **Top-1 Retrieval Accuracy**: `100.0%` (6/6)
+- **Top-1 Retrieval Accuracy**: `100.0%` (6/6 queries matched expected chunks)
 - **Top-3 Retrieval Accuracy**: `100.0%` (6/6)
 - **Top-5 Retrieval Accuracy**: `100.0%` (6/6)
-- **Low-Confidence Query Flagged**: `39.5%` similarity (< 0.50 threshold) triggered the Clarification Agent.
+- **Out-of-Domain Guardrail**: Irrelevant query scored `39.5%` similarity (< 0.50 threshold), successfully triggering the Clarification Agent.
+
+### 3. Run the Full-Stack Backend (Optional)
+To run the live Flask backend with ChromaDB persistence:
+
+```bash
+python backend/app.py
+```
+Then visit `http://localhost:5000` in your browser.
 
 ---
 
-### Option B: Run the Interactive Web Application
+## 🔮 Future Milestone Roadmap
 
-1. **Start the Flask Backend**:
-   ```bash
-   python backend/app.py
-   ```
-2. **Access the Web Interface**:
-   Open **`http://localhost:5000`** in your browser.
-3. **Ingest Documents**:
-   - Drag & drop `.pdf`, `.docx`, `.txt`, or `.csv` files into the left sidebar.
-   - The platform will extract text, chunk it (500 tokens, 50 overlap), generate dense embeddings, and index into ChromaDB.
-4. **Interact via Text or Voice**:
-   - Type queries in the input box, or click the **Microphone** button to speak your question aloud.
-   - Click sample query chips to test factual, procedural, and comparative queries.
-   - Inspect grounded source citation cards with match percentages.
-   - Toggle **Voice Output** in the top bar to hear generated answers read aloud.
-
----
-
-## 📡 REST API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/upload` | Ingest and index a document (`multipart/form-data`) |
-| `POST` | `/query` | Execute multi-agent RAG workflow on user question |
-| `GET` | `/health` | Health status, total chunks, and document count |
-| `GET` | `/documents` | List all indexed documents in the knowledge base |
-| `GET` | `/history/<session_id>` | Fetch conversation history for a session |
-| `POST` | `/reset` | Clear all indexed vectors from ChromaDB |
+- **Milestone 2**: Full multi-agent orchestration enhancements, dynamic query decomposition into parallel sub-searches, and iterative re-ranking.
+- **Milestone 3**: Advanced document parsing (scanned PDFs, OCR, tables), hybrid search (dense semantic + BM25 keyword), and citation highlighting.
+- **Milestone 4**: Production deployment hardening, comprehensive unit/integration test suites, and Docker containerization.
