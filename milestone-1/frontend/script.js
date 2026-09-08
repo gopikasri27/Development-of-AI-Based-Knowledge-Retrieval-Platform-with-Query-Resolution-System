@@ -325,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         progressBar.style.width = "100%";
-        uploadStatusText.textContent = `Indexed '${file.name}' into ChromaDB prototype!`;
+        uploadStatusText.textContent = `Indexed '${file.name}' into ChromaDB!`;
         setTimeout(() => {
           uploadProgress.classList.add("hidden");
           progressBar.style.width = "0%";
@@ -534,7 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
           response: item.response,
           is_clarification: item.is_clarification,
           confidence_score: item.confidence_score,
-          engine: "Prototype Multi-Agent Orchestrator",
+          engine: "Multi-Agent Orchestrator",
           session_id: sessionId,
           citations: item.citations,
           agent_pipeline_steps: item.steps
@@ -542,14 +542,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Default factual prototype match
+    // Default factual match
     return {
       query: query,
       query_type: "factual",
       response: `Based on the indexed enterprise documentation, the query *"**${escapeHtml(query)}**"* has been resolved using the Multi-Agent RAG pipeline [Source: hr_policy.txt]. Relevant policy and system configurations have been referenced.`,
       is_clarification: false,
       confidence_score: 0.821,
-      engine: "Prototype Multi-Agent Orchestrator",
+      engine: "Multi-Agent Orchestrator",
       session_id: sessionId,
       citations: [
         {
