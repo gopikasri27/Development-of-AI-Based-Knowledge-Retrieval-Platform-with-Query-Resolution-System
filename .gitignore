@@ -17,6 +17,8 @@ ENV/
 # ChromaDB local vector store files
 backend/vectorstore/
 vectorstore/
+milestone-2/data/
+**/data/vectorstore/
 
 # SQLite Databases & logs
 *.db

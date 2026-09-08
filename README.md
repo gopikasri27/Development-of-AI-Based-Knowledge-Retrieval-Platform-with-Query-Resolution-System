@@ -1,16 +1,11 @@
 # AI-Based Knowledge Retrieval Platform with Query Resolution System
 
-> ### 📌 Current Submission: Infosys Internship – Milestone 1
+> ### 📌 Active Milestones: Infosys Internship – Milestone 1 & Milestone 2
 > 
-> *This repository contains the submission for **Milestone 1** of the Infosys Springboard Internship Project.*
+> *This repository contains the completed submissions for **Milestone 1** and **Milestone 2** of the Infosys Springboard Internship Project.*
 > 
-> **Milestone 1 covers:**
-> 1. **RAG Architecture**
-> 2. **Multi-Agent Query Resolution Patterns**
-> 3. **Web Speech API Integration**
-> 4. **System Architecture**
-> 5. **Data Specifications**
-> 6. **Frontend UI Prototype**
+> - **Milestone 1**: System Architecture, RAG Architecture, Web Speech API, Data Specifications, and Frontend UI Prototype.
+> - **Milestone 2**: Multi-Agent Query Resolution, Query Understanding Agent, Retrieval Agent, Response Generation Agent, Sequential Orchestration, and Automated Test Suite.
 
 ---
 
@@ -22,27 +17,49 @@ The **AI-Based Knowledge Retrieval Platform with Query Resolution System** is an
 
 ## 📂 Repository Structure
 
-The current `main` branch contains the complete **Milestone 1** deliverables:
-
 ```text
 rag/
-├── README.md                                   # Root project documentation & submission details
+├── README.md                                   # Root project documentation & submission index
 ├── .gitignore                                  # Git ignore rules
-└── milestone-1/                                # Milestone 1 Submission Directory
-    ├── architecture/
-    │   ├── System-Architecture.md              # Detailed component & layer breakdown
-    │   └── System-Architecture.png             # High-resolution architectural workflow diagram
-    │
+│
+├── milestone-1/                                # Milestone 1 Deliverables
+│   ├── architecture/
+│   │   ├── System-Architecture.md              # Detailed component & layer breakdown
+│   │   └── System-Architecture.png             # High-resolution architectural workflow diagram
+│   ├── documentation/
+│   │   ├── Data-Specifications.md              # Input, processing, retrieved, and output schemas
+│   │   ├── Multi-Agent-Query-Resolution.md     # Multi-agent query resolution design & patterns
+│   │   ├── RAG-Architecture.md                 # RAG theory, chunking, embeddings, workflow
+│   │   └── Web-Speech-API.md                   # SpeechRecognition & SpeechSynthesis integration
+│   └── frontend/
+│       ├── index.html                          # Milestone 1 UI prototype with voice controls & dropzone
+│       ├── script.js                           # Web Speech API, agent animation, and resolution logic
+│       └── style.css                           # Modern dark glassmorphic styling & responsive layout
+│
+└── milestone-2/                                # Milestone 2 Deliverables
+    ├── agents/
+    │   ├── query_understanding_agent.py        # M2.1: Intent classification (factual/procedural/comp/ambig)
+    │   ├── retrieval_agent.py                  # M2.2: Vector search & metadata ranking
+    │   └── response_generation_agent.py        # M2.3: Grounded synthesis, citations & confidence
+    ├── orchestration/
+    │   └── agent_orchestrator.py               # M2.4: Sequential multi-agent pipeline coordinator
+    ├── retrieval/
+    │   ├── chunking.py                         # RecursiveCharacterTextSplitter with section metadata
+    │   ├── embeddings.py                       # 384-d dense embedding generator (all-MiniLM-L6-v2)
+    │   └── vector_store.py                     # ChromaDB HNSW vector store manager
+    ├── knowledge_base/
+    │   ├── hr_policy.txt                       # Domain 1: Corporate HR Policies
+    │   └── product_manual.txt                  # Domain 2: CloudSync Pro Tech Manual
+    ├── api/
+    │   └── app.py                              # Flask REST API server (POST /api/query)
+    ├── tests/
+    │   ├── test_query_understanding.py         # Unit tests for M2.1
+    │   ├── test_retrieval.py                   # Unit tests for M2.2
+    │   ├── test_response_generation.py         # Unit tests for M2.3
+    │   └── test_orchestration.py               # End-to-end integration tests for M2.4
     ├── documentation/
-    │   ├── Data-Specifications.md              # Input, processing, retrieved, and output schemas
-    │   ├── Multi-Agent-Query-Resolution.md     # 5-Agent query resolution architecture & communication
-    │   ├── RAG-Architecture.md                 # RAG theory, chunking, embeddings, workflow
-    │   └── Web-Speech-API.md                   # SpeechRecognition & SpeechSynthesis integration
-    │
-    └── frontend/
-        ├── index.html                          # Milestone 1 UI prototype with voice controls & dropzone
-        ├── script.js                           # Web Speech API, agent animation, and resolution logic
-        └── style.css                           # Modern dark glassmorphic styling & responsive layout
+    │   └── Milestone-2.md                      # Comprehensive Milestone 2 technical report
+    └── README.md                               # Milestone 2 quickstart guide
 ```
 
 ---
@@ -62,6 +79,44 @@ All Milestone 1 deliverables are organized in the `milestone-1/` directory:
 
 ---
 
+## 🤖 Milestone 2 – Multi-Agent Query Resolution & Response Generation
+
+Milestone 2 implements the autonomous multi-agent backend engine coordinating query analysis, semantic retrieval, grounded synthesis, and execution telemetry:
+
+```text
+User Query
+    ↓
+Query Understanding Agent (M2.1)
+    ↓
+Retrieval Agent (M2.2)
+    ↓
+Response Generation Agent (M2.3)
+    ↓
+Final Response (Grounded Answer + Citations + Confidence Indicator)
+```
+
+### Milestone 2 Components
+
+| Component | Implementation File | Key Capabilities |
+| :--- | :--- | :--- |
+| **M2.1 Query Understanding Agent** | [`milestone-2/agents/query_understanding_agent.py`](milestone-2/agents/query_understanding_agent.py) | Classifies query intent into `factual`, `procedural`, `comparative`, or `ambiguous` with confidence scoring and routing (`retrieval` vs `clarification`). |
+| **M2.2 Retrieval Agent** | [`milestone-2/agents/retrieval_agent.py`](milestone-2/agents/retrieval_agent.py) | Performs vector search on ChromaDB, returns Top-$K$ chunks, ranks by cosine similarity, filters by confidence threshold ($\tau = 0.50$), and preserves document metadata. |
+| **M2.3 Response Generation Agent** | [`milestone-2/agents/response_generation_agent.py`](milestone-2/agents/response_generation_agent.py) | Generates grounded answers with exact source citations, dynamic application confidence (`High`/`Medium`/`Low`), and anti-hallucination guardrails. |
+| **M2.4 Multi-Agent Orchestration Layer** | [`milestone-2/orchestration/agent_orchestrator.py`](milestone-2/orchestration/agent_orchestrator.py) | Coordinates sequential agent execution, enforces standard data contracts, and handles boundary failures gracefully. |
+| **Milestone 2 Technical Report** | [`milestone-2/documentation/Milestone-2.md`](milestone-2/documentation/Milestone-2.md) | Complete architectural specifications, data contracts, and evaluation results. |
+
+### How to Run Milestone 2 Tests
+```powershell
+python -m unittest discover -s milestone-2/tests -p "test_*.py" -v
+```
+
+### How to Run Milestone 2 Backend API
+```powershell
+python milestone-2/api/app.py
+```
+
+---
+
 ## 🏛️ System Architecture Workflow
 
 ```text
@@ -71,19 +126,15 @@ Web UI
  ↓
 Text / Voice Input
  ↓
-Query Processing
+Query Processing (Query Understanding Agent)
  ↓
-Query Resolution
+Query Resolution (Retrieval Agent & Vector Store)
  ↓
-RAG Pipeline
+RAG Pipeline (ChromaDB + all-MiniLM-L6-v2)
  ↓
-Knowledge Base / Vector Store
+LLM Grounded Synthesis (Response Generation Agent)
  ↓
-LLM
- ↓
-Response
- ↓
-Web UI
+Response Delivery (Web UI + Speech Output)
 ```
 
 ![System Architecture Diagram](milestone-1/architecture/System-Architecture.png)
@@ -120,6 +171,8 @@ The Milestone 1 prototype runs directly in any modern web browser without requir
 
 ## 🔮 Future Milestone Roadmap
 
-- **Milestone 2**: Full multi-agent orchestration implementation, dynamic query decomposition into parallel sub-searches, and iterative re-ranking.
-- **Milestone 3**: Advanced document parsing (scanned PDFs, OCR, tables), hybrid search (dense semantic + BM25 keyword), and citation highlighting.
-- **Milestone 4**: Production deployment hardening, comprehensive unit/integration test suites, and Docker containerization.
+- **Milestone 1 (Completed)**: Architectural blueprint, RAG specifications, and interactive voice UI prototype.
+- **Milestone 2 (Completed)**: Full multi-agent orchestration, intent understanding, vector retrieval, and grounded answer synthesis.
+- **Milestone 3**: Advanced document parsing (scanned PDFs, OCR, tables), hybrid search (dense semantic + BM25 keyword), and full clarification loop.
+- **Milestone 4**: Production deployment hardening, containerization, and enterprise monitoring.
+
