@@ -72,11 +72,16 @@ class ResponseGenerationAgent:
         if retrieved_data and "results" in retrieved_data:
             results = retrieved_data["results"]
 
-        # If query is ambiguous or no retrieved results, return safe insufficient response
-        is_ambiguous = (query_classification and query_classification.get("query_type") == "ambiguous")
-        if is_ambiguous or not results:
+        # If no retrieved results or extremely low relevance, return informative clarification guidance
+        if not results:
+            clarification_msg = (
+                "**Clarification Requested:** Sufficient matching information was not found in the indexed documents to answer your inquiry.\n\n"
+                "**Suggestions:**\n"
+                "- Please ensure your document is uploaded and visible in the **Indexed Documents** sidebar.\n"
+                "- Try rephrasing your question with specific keywords mentioned in your document."
+            )
             return {
-                "answer": INSUFFICIENT_INFO_MESSAGE,
+                "answer": clarification_msg,
                 "sources": [],
                 "confidence": {
                     "score": 0.0,
@@ -86,17 +91,23 @@ class ResponseGenerationAgent:
 
         # Compute application confidence score from top retrieved chunk relevance
         top_score = float(results[0].get("relevance_score", 0.0))
-        if top_score >= 0.75:
+        if top_score >= 0.60:
             confidence_label = "High"
-        elif top_score >= 0.50:
+        elif top_score >= 0.30:
             confidence_label = "Medium"
         else:
             confidence_label = "Low"
 
-        # If highest score is below 0.50 threshold, treat as insufficient
-        if top_score < 0.50:
+        # If highest score is below 0.30 threshold, request clarification
+        if top_score < 0.30:
+            clarification_msg = (
+                f"**Clarification Requested:** The closest retrieved passage had a low relevance score ({round(top_score * 100, 1)}%).\n\n"
+                "**Suggestions:**\n"
+                "- Please rephrase your question using exact terms or headings from your uploaded document.\n"
+                "- Ensure the document was fully parsed and indexed in the left sidebar."
+            )
             return {
-                "answer": INSUFFICIENT_INFO_MESSAGE,
+                "answer": clarification_msg,
                 "sources": [],
                 "confidence": {
                     "score": round(top_score, 4),

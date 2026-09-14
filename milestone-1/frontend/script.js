@@ -243,17 +243,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     documentsList.innerHTML = docs
-      .map(
-        (d) => `
+      .map((d) => {
+        const docName = d.document_name || d.filename || "Document";
+        const chunks = d.chunks_count || d.chunks || 0;
+        const ext = docName.includes(".") ? "." + docName.split(".").pop() : ".txt";
+        return `
         <li class="doc-item">
           <div class="doc-info">
-            <span class="doc-name" title="${d.filename}">${d.filename}</span>
-            <span class="doc-meta">${(d.file_size / 1024).toFixed(1)} KB • ${d.chunks_count} chunks</span>
+            <span class="doc-name" title="${escapeHtml(docName)}">${escapeHtml(docName)}</span>
+            <span class="doc-meta">${chunks} chunks indexed</span>
           </div>
-          <span class="doc-badge">${d.file_type || ".txt"}</span>
+          <span class="doc-badge">${escapeHtml(ext)}</span>
         </li>
-      `
-      )
+      `;
+      })
       .join("");
   }
 
@@ -287,50 +290,34 @@ document.addEventListener("DOMContentLoaded", () => {
     progressBar.style.width = "40%";
     uploadStatusText.textContent = `Uploading and parsing '${file.name}'...`;
 
-    if (isBackendAvailable) {
-      const formData = new FormData();
-      formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-      try {
-        progressBar.style.width = "75%";
-        uploadStatusText.textContent = "Chunking and generating vector embeddings...";
+    try {
+      progressBar.style.width = "75%";
+      uploadStatusText.textContent = "Chunking and generating vector embeddings...";
 
-        const res = await fetch("/upload", {
-          method: "POST",
-          body: formData,
-        });
+      const res = await fetch("/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        const data = await res.json();
-        if (res.ok) {
-          progressBar.style.width = "100%";
-          uploadStatusText.textContent = `Indexed ${data.chunks_indexed} chunks successfully!`;
-          setTimeout(() => {
-            uploadProgress.classList.add("hidden");
-            progressBar.style.width = "0%";
-          }, 2000);
-          fetchHealthAndDocuments();
-        } else {
-          alert(data.error || "Failed to upload document");
-          uploadProgress.classList.add("hidden");
-        }
-      } catch (e) {
-        uploadProgress.classList.add("hidden");
-      }
-    } else {
-      // Prototype demonstration upload simulation
-      setTimeout(() => {
-        progressBar.style.width = "75%";
-        uploadStatusText.textContent = "Extracting text passages and chunking (Size: 500)...";
-      }, 700);
-
-      setTimeout(() => {
+      const data = await res.json();
+      if (res.ok) {
         progressBar.style.width = "100%";
-        uploadStatusText.textContent = `Indexed '${file.name}' into ChromaDB!`;
+        uploadStatusText.textContent = `Indexed ${data.chunks_indexed} chunks successfully!`;
         setTimeout(() => {
           uploadProgress.classList.add("hidden");
           progressBar.style.width = "0%";
-        }, 1800);
-      }, 1500);
+        }, 2000);
+        fetchHealthAndDocuments();
+      } else {
+        alert(data.error || "Failed to upload document");
+        uploadProgress.classList.add("hidden");
+      }
+    } catch (e) {
+      console.error("Upload error:", e);
+      uploadProgress.classList.add("hidden");
     }
   }
 
@@ -409,20 +396,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tagText = data.is_clarification ? "Clarification Requested" : `${capitalize(data.query_type || "Factual")} Query`;
 
+    const rawResponse = data.response || data.answer || "No answer generated.";
+    const citationsList = data.citations || data.sources || [];
+
     let citationsHtml = "";
-    if (data.citations && data.citations.length > 0) {
-      const citationCards = data.citations
-        .map(
-          (c) => `
+    if (citationsList && citationsList.length > 0) {
+      const citationCards = citationsList
+        .map((c) => {
+          const docName = c.source_file || c.document_name || "Document";
+          const score = Math.round((c.similarity_score || c.relevance_score || 0) * 100);
+          const snippet = c.excerpt || c.content || "";
+          return `
         <div class="citation-card">
           <div class="citation-top">
-            <span class="citation-doc" title="${c.source_file}">📄 ${c.source_file}</span>
-            <span class="citation-score">${Math.round(c.similarity_score * 100)}% match</span>
+            <span class="citation-doc" title="${escapeHtml(docName)}">📄 ${escapeHtml(docName)}</span>
+            <span class="citation-score">${score}% match</span>
           </div>
-          <p class="citation-snippet">"${escapeHtml(c.excerpt)}"</p>
+          <p class="citation-snippet">"${escapeHtml(snippet)}"</p>
         </div>
-      `
-        )
+      `;
+        })
         .join("");
 
       citationsHtml = `
@@ -432,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
             </svg>
-            <span>Verified Sources (${data.citations.length})</span>
+            <span>Verified Sources (${citationsList.length})</span>
           </div>
           <div class="citation-cards-grid">
             ${citationCards}
@@ -445,9 +438,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="avatar">AI</div>
       <div class="bubble">
         <span class="query-type-tag ${tagClass}">${tagText}</span>
-        <div class="message-content">${formatMarkdown(data.response)}</div>
+        <div class="message-content">${formatMarkdown(rawResponse)}</div>
         ${citationsHtml}
-        <button class="speak-response-btn" data-text="${escapeHtml(data.response)}">
+        <button class="speak-response-btn" data-text="${escapeHtml(rawResponse)}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
@@ -463,12 +456,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const speakBtn = msgRow.querySelector(".speak-response-btn");
     if (speakBtn) {
       speakBtn.addEventListener("click", () => {
-        speakText(data.response);
+        speakText(rawResponse);
       });
     }
 
     if (isTtsEnabled) {
-      speakText(data.response);
+      speakText(rawResponse);
     }
   }
 
@@ -486,9 +479,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Visual sequence through the 5 agents
     updatePipelineSteps(0);
-    setTimeout(() => updatePipelineSteps(1), 250);
-    setTimeout(() => updatePipelineSteps(2), 500);
-    setTimeout(() => updatePipelineSteps(3), 750);
+    setTimeout(() => updatePipelineSteps(1), 200);
+    setTimeout(() => updatePipelineSteps(2), 400);
+    setTimeout(() => updatePipelineSteps(3), 600);
+    setTimeout(() => updatePipelineSteps(4), 800);
 
     // Try live backend first
     let liveSuccess = false;

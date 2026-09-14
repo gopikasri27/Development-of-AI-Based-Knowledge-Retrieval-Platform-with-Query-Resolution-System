@@ -29,7 +29,7 @@ class RetrievalAgent:
         self,
         vector_store: Optional[VectorStoreManager] = None,
         top_k: int = 5,
-        confidence_threshold: float = 0.50,
+        confidence_threshold: float = 0.30,
         collection_name: str = DEFAULT_COLLECTION_NAME,
         persist_directory: str = DEFAULT_PERSIST_DIR
     ):

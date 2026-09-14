@@ -111,35 +111,24 @@ class MultiAgentOrchestrator:
         # -------------------------------------------------------------
         t1 = time.time()
         try:
-            if query_classification.get("routing") == "clarification":
-                # Ambiguous queries: skip heavy retrieval or return empty results
-                retrieved_data = {
-                    "query": query,
-                    "results": [],
-                    "result_count": 0
+            # Execute retrieval across all indexed documents
+            retrieved_data = self.retrieval_agent.retrieve(
+                query=query,
+                query_classification=query_classification
+            )
+            chunks_found = retrieved_data.get("result_count", 0)
+            top_relevance = retrieved_data["results"][0]["relevance_score"] if retrieved_data.get("results") else 0.0
+
+            telemetry_steps.append({
+                "step": 2,
+                "agent": "Retrieval Agent",
+                "status": "success",
+                "duration_ms": round((time.time() - t1) * 1000, 2),
+                "details": {
+                    "chunks_retrieved": chunks_found,
+                    "top_score": top_relevance
                 }
-                telemetry_steps.append({
-                    "step": 2,
-                    "agent": "Retrieval Agent",
-                    "status": "skipped_ambiguous",
-                    "duration_ms": round((time.time() - t1) * 1000, 2),
-                    "details": {"reason": "Query marked for clarification; retrieval bypassed."}
-                })
-            else:
-                retrieved_data = self.retrieval_agent.retrieve(
-                    query=query,
-                    query_classification=query_classification
-                )
-                telemetry_steps.append({
-                    "step": 2,
-                    "agent": "Retrieval Agent",
-                    "status": "success",
-                    "duration_ms": round((time.time() - t1) * 1000, 2),
-                    "details": {
-                        "chunks_retrieved": retrieved_data.get("result_count", 0),
-                        "top_score": retrieved_data["results"][0]["relevance_score"] if retrieved_data.get("results") else 0.0
-                    }
-                })
+            })
         except Exception as e:
             # Retrieval failure fallback
             retrieved_data = {

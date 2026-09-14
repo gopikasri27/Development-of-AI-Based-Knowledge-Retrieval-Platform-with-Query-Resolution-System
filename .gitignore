@@ -28,6 +28,8 @@ backend/rag_metadata.db
 # User uploaded files (keep uploads folder)
 backend/uploads/*
 !backend/uploads/.gitkeep
+milestone-2/knowledge_base/uploads/*
+!milestone-2/knowledge_base/uploads/.gitkeep
 
 # IDE & OS files
 .vscode/
