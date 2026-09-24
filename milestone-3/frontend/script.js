@@ -51,6 +51,11 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("Voice input error:", errCode, errorMsg);
       micBtn.classList.remove("listening");
       queryInput.placeholder = "Ask a question or click the mic for voice input...";
+      if (errCode === "not-allowed" || errCode === "service-not-allowed") {
+        alert("Microphone Access Denied: Please allow microphone permissions in your browser settings to use voice input.");
+      } else if (errCode === "unsupported") {
+        alert(errorMsg || "Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+      }
     },
     onEnd: () => {
       micBtn.classList.remove("listening");
