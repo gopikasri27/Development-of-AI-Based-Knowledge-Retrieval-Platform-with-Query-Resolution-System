@@ -40,19 +40,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize Voice Input (Web Speech API)
   const voiceController = new VoiceInputController({
+    lang: "en-US",
     onStart: () => {
       micBtn.classList.add("listening");
       queryInput.placeholder = "Listening... speak now...";
     },
     onResult: (transcript, isFinal) => {
-      queryInput.value = transcript;
+      if (queryInput) {
+        queryInput.value = transcript;
+        queryInput.style.height = "auto";
+        queryInput.style.height = Math.min(queryInput.scrollHeight, 120) + "px";
+      }
     },
     onError: (errCode, errorMsg) => {
-      console.warn("Voice input error:", errCode, errorMsg);
       micBtn.classList.remove("listening");
       queryInput.placeholder = "Ask a question or click the mic for voice input...";
       if (errCode === "not-allowed" || errCode === "service-not-allowed") {
-        alert("Microphone Access Denied: Please allow microphone permissions in your browser settings to use voice input.");
+        alert("Microphone Access Denied: Please allow microphone access in your browser settings (click the camera/mic icon in your address bar).");
+      } else if (errCode === "audio-capture") {
+        alert("No Microphone Found: Please connect a working microphone to your computer.");
       } else if (errCode === "unsupported") {
         alert(errorMsg || "Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
       }
@@ -60,9 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
     onEnd: () => {
       micBtn.classList.remove("listening");
       queryInput.placeholder = "Ask a question or click the mic for voice input...";
-      if (queryInput.value.trim().length > 0) {
-        handleSendMessage();
-      }
     }
   });
 
@@ -484,8 +487,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   micBtn.addEventListener("click", () => {
-    if (voiceController.isListening) voiceController.stop();
-    else voiceController.start();
+    console.log("[VOICE] Microphone button clicked");
+    if (voiceController.isListening) {
+      voiceController.stop();
+    } else {
+      voiceController.start();
+    }
   });
 
   ttsToggleBtn.addEventListener("click", () => {

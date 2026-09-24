@@ -81,12 +81,46 @@ def serve_index():
     }), 200
 
 
+@app.route("/voice/<path:filename>", methods=["GET"])
+def serve_voice_static(filename):
+    """Serves voice module scripts."""
+    voice_dir = os.path.join(m3_dir, "voice")
+    if os.path.exists(os.path.join(voice_dir, filename)):
+        return send_from_directory(voice_dir, filename)
+    return jsonify({"error": "Voice script not found"}), 404
+
+
+@app.route("/transparency/<path:filename>", methods=["GET"])
+def serve_transparency_static(filename):
+    """Serves transparency module scripts."""
+    trans_dir = os.path.join(m3_dir, "transparency")
+    if os.path.exists(os.path.join(trans_dir, filename)):
+        return send_from_directory(trans_dir, filename)
+    return jsonify({"error": "Transparency script not found"}), 404
+
+
 @app.route("/<path:path>", methods=["GET"])
 def serve_static(path):
-    """Serves static files (CSS, JS, assets) from frontend."""
-    if os.path.exists(os.path.join(frontend_dir, path)):
-        return send_from_directory(frontend_dir, path)
-    return jsonify({"error": "Resource not found"}), 404
+    """Serves static files (CSS, JS, assets) from frontend or milestone-3 subdirectories."""
+    # Strip leading slashes
+    clean_path = path.lstrip("/")
+    if os.path.exists(os.path.join(frontend_dir, clean_path)):
+        return send_from_directory(frontend_dir, clean_path)
+    
+    # Handle voice/ or transparency/ relative paths
+    if clean_path.startswith("voice/"):
+        rel = clean_path.replace("voice/", "", 1)
+        voice_dir = os.path.join(m3_dir, "voice")
+        if os.path.exists(os.path.join(voice_dir, rel)):
+            return send_from_directory(voice_dir, rel)
+    elif clean_path.startswith("transparency/"):
+        rel = clean_path.replace("transparency/", "", 1)
+        trans_dir = os.path.join(m3_dir, "transparency")
+        if os.path.exists(os.path.join(trans_dir, rel)):
+            return send_from_directory(trans_dir, rel)
+
+    return jsonify({"error": f"Resource '{path}' not found"}), 404
+
 
 
 @app.route("/api/health", methods=["GET"])
