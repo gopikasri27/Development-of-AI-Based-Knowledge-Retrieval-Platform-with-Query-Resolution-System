@@ -486,12 +486,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  micBtn.addEventListener("click", () => {
+  micBtn.addEventListener("click", async () => {
     console.log("[VOICE] Microphone button clicked");
     if (voiceController.isListening) {
       voiceController.stop();
     } else {
-      voiceController.start();
+      await voiceController.start();
     }
   });
 

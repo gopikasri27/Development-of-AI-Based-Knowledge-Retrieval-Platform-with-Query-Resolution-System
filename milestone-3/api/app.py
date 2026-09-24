@@ -66,6 +66,9 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,DELETE,OPTIONS"
+    # Allow microphone access via Permissions-Policy (prevents browser from blocking mic API)
+    response.headers["Permissions-Policy"] = "microphone=*"
+    response.headers["Feature-Policy"] = "microphone *"
     return response
 
 

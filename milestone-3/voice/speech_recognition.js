@@ -1,6 +1,7 @@
 /**
  * Web Speech API Voice Recognition Controller (M3.3)
- * Provides modular speech-to-text recognition with controls, callbacks, structured debug logs, and error handling.
+ * Provides modular speech-to-text recognition with explicit getUserMedia permission acquisition,
+ * structured console debug logs, and robust error handling.
  */
 
 class VoiceInputController {
@@ -55,7 +56,7 @@ class VoiceInputController {
         console.error('[VOICE] Error:', event.error);
         let errorMsg = 'Speech recognition error occurred.';
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-          errorMsg = 'Microphone permission was denied. Please allow microphone access in your browser settings.';
+          errorMsg = 'Microphone permission was denied. Please click the lock/camera icon in your address bar and allow microphone access.';
         } else if (event.error === 'no-speech') {
           errorMsg = 'No speech detected. Please speak into your microphone and try again.';
         } else if (event.error === 'audio-capture') {
@@ -81,22 +82,50 @@ class VoiceInputController {
     }
   }
 
-  start() {
+  async start() {
     console.log('[VOICE] Speech recognition starting');
     if (!this.supported) {
       console.error('[VOICE] Error: browser not supported');
       this.onError('unsupported', 'Voice recognition is not supported in your browser. Please use Chrome or Edge.');
       return false;
     }
+
     if (this.isListening) {
       this.stop();
+      return true;
     }
+
+    // Step 1: Pre-flight explicit microphone permission request via getUserMedia
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        console.log('[VOICE] Requesting microphone stream permission via getUserMedia...');
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('[VOICE] Microphone permission granted by browser');
+        // Stop temporary stream tracks so microphone device is released for SpeechRecognition engine
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        console.error('[VOICE] Microphone permission error via getUserMedia:', err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          this.onError('not-allowed', 'Microphone permission was denied. Please click the lock/camera icon in the address bar and allow microphone access.');
+          return false;
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          this.onError('audio-capture', 'No microphone hardware found on your system.');
+          return false;
+        }
+      }
+    }
+
+    // Step 2: Start Web Speech API SpeechRecognition
     try {
       this.recognition.start();
       return true;
     } catch (e) {
-      console.error('[VOICE] Failed to start speech recognition:', e);
-      this.onError('start_failed', e.message);
+      if (e.name === 'InvalidStateError') {
+        console.warn('[VOICE] SpeechRecognition is already active or in starting state');
+      } else {
+        console.error('[VOICE] Failed to start speech recognition:', e);
+        this.onError('start_failed', e.message);
+      }
       return false;
     }
   }
