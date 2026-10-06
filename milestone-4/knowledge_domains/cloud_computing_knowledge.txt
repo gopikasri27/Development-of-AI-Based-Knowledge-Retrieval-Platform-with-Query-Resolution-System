@@ -1,0 +1,162 @@
+# Cloud Computing Knowledge Base
+
+## What is Cloud Computing?
+
+Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the internet ("the cloud") to offer faster innovation, flexible resources, and economies of scale. Instead of owning and maintaining physical data centers and servers, organizations can access technology services on an as-needed basis from a cloud provider and pay only for what they use.
+
+Cloud computing eliminates the capital expense of buying hardware and software and setting up and running on-site data centers—the racks of servers, the round-the-clock electricity for power and cooling, and the IT experts for managing the infrastructure.
+
+## Cloud Service Models
+
+### Infrastructure as a Service (IaaS)
+
+IaaS is the most fundamental cloud service model. It provides virtualized computing infrastructure over the internet. With IaaS, a cloud provider hosts the hardware, software, servers, storage, and other infrastructure components on behalf of its users.
+
+IaaS characteristics:
+- Provides virtualized hardware resources (compute, networking, storage)
+- Users manage operating systems, middleware, and applications
+- Provider manages physical servers, networking hardware, and data centers
+- Highly scalable and available
+- Pay-as-you-go pricing model
+
+Benefits of IaaS:
+- Eliminates capital expenditure on physical infrastructure
+- Scales dynamically based on demand
+- Business continuity and disaster recovery support
+- Faster delivery of applications and infrastructure
+- Focus IT resources on core business activities
+
+Examples of IaaS providers: Amazon Web Services (AWS EC2), Microsoft Azure Virtual Machines, Google Compute Engine.
+
+### Platform as a Service (PaaS)
+
+PaaS provides a cloud-based platform for developing, running, and managing applications without the complexity of building and maintaining the underlying infrastructure.
+
+PaaS characteristics:
+- Provides development tools, middleware, database management, and runtime environments
+- Developers focus on writing and deploying applications
+- Provider manages servers, storage, networking, and operating system
+- Supports the complete web application lifecycle
+
+Benefits of PaaS:
+- Faster time to market
+- Reduced coding effort through built-in infrastructure
+- Easy migration to hybrid cloud
+- Cost efficiency for development teams
+- Built-in scalability and high availability
+
+Examples of PaaS: Google App Engine, Microsoft Azure App Service, Heroku, AWS Elastic Beanstalk.
+
+### Software as a Service (SaaS)
+
+SaaS delivers complete applications over the internet. Users access software through a web browser, eliminating the need for installation or maintenance.
+
+SaaS characteristics:
+- Fully managed application delivered via the internet
+- Provider manages everything: infrastructure, platform, and application
+- Subscription-based or pay-per-use pricing
+- Accessible from any device with internet connection
+
+Benefits of SaaS:
+- No installation, maintenance, or upgrades required
+- Accessible anywhere with internet connection
+- Lower upfront costs
+- Automatic updates and patches
+- Scalable user licenses
+
+Examples of SaaS: Google Workspace (Gmail, Docs), Microsoft 365, Salesforce, Slack, Zoom.
+
+## Cloud Deployment Models
+
+### Public Cloud
+
+Public clouds are owned and operated by third-party cloud service providers who deliver their computing resources—such as servers and storage—over the internet. Multiple customers share the same physical infrastructure.
+
+### Private Cloud
+
+A private cloud consists of computing resources used exclusively by a single business or organization. It can be located on the organization's on-site data center or hosted by a third-party service provider.
+
+### Hybrid Cloud
+
+A hybrid cloud combines public and private clouds, bound together by technology that allows data and applications to be shared between them. Hybrid cloud gives businesses greater flexibility and more deployment options.
+
+### Multi-Cloud
+
+Multi-cloud refers to the use of multiple cloud computing services from multiple cloud providers. Organizations use multi-cloud to avoid vendor lock-in, optimize costs, and leverage specific capabilities of different providers.
+
+## Cloud Computing Benefits
+
+**Cost Savings**: Eliminates the capital expense of buying hardware and software. Pay only for what you use.
+
+**Speed**: Most cloud computing services are provided self-service and on-demand, so even vast amounts of computing resources can be provisioned in minutes.
+
+**Global Scale**: Cloud computing services offer the ability to scale elastically. This means delivering the right amount of IT resources from the right geographic location when needed.
+
+**Productivity**: Cloud computing removes the need for many of these tasks, so IT teams can spend time on achieving more important business goals.
+
+**Performance**: Cloud computing services run on a worldwide network of secure data centers, which are regularly upgraded to the latest generation of fast and efficient computing hardware.
+
+**Reliability**: Cloud computing makes data backup, disaster recovery, and business continuity easier and less expensive.
+
+**Security**: Many cloud providers offer a broad set of policies, technologies, and controls that strengthen your security posture overall.
+
+## How Semantic Search Works in Cloud Systems
+
+Semantic search in cloud computing platforms works through the following steps:
+1. Documents are ingested into the cloud platform
+2. Text is chunked into manageable segments
+3. Each chunk is converted to a vector embedding using an AI embedding model
+4. Embeddings are stored in a vector database (such as Pinecone, Weaviate, or ChromaDB)
+5. When a query is submitted, it is embedded using the same model
+6. The vector database performs approximate nearest-neighbor search
+7. The most semantically similar chunks are retrieved and ranked
+8. Results are used to generate a grounded response
+
+## Cloud Storage
+
+Cloud storage is a cloud computing model that stores data on the internet through a cloud computing provider who manages and operates data storage as a service. Data is maintained, managed, backed up remotely, and made available to users over a network (typically the internet).
+
+Types of cloud storage:
+- **Object Storage**: Stores data as objects with metadata and unique identifiers. Best for unstructured data. Example: Amazon S3, Google Cloud Storage.
+- **Block Storage**: Stores data in fixed-size blocks. Best for databases and applications requiring low latency. Example: Amazon EBS, Azure Disk Storage.
+- **File Storage**: Organizes data in a hierarchical file structure. Best for shared file systems. Example: Amazon EFS, Azure Files.
+
+## Cloud Networking
+
+**Virtual Private Cloud (VPC)**: A private, logically isolated network within a public cloud. Organizations can define IP address ranges, create subnets, and configure route tables.
+
+**Content Delivery Network (CDN)**: A geographically distributed network of servers that delivers content to users based on their location. Reduces latency and improves performance.
+
+**Load Balancer**: Distributes incoming network traffic across multiple servers to ensure no single server bears too much demand.
+
+**API Gateway**: A managed service that creates, publishes, maintains, monitors, and secures APIs at any scale.
+
+## Containerization and Orchestration
+
+**Docker**: A platform for packaging applications into lightweight, portable containers. Containers include the application code, runtime, system tools, libraries, and settings.
+
+**Kubernetes**: An open-source container orchestration platform for automating deployment, scaling, and management of containerized applications.
+
+**Serverless Computing**: A cloud execution model in which the cloud provider runs the server and dynamically manages the allocation of machine resources. Examples: AWS Lambda, Google Cloud Functions, Azure Functions.
+
+## Cloud Cost Optimization
+
+Strategies for optimizing cloud costs:
+- Right-sizing: Choose the appropriate instance type and size for your workload
+- Reserved instances: Commit to 1 or 3 years for significant discounts
+- Spot instances: Use spare capacity at steep discounts for fault-tolerant workloads
+- Auto-scaling: Automatically adjust capacity based on demand
+- Monitoring and tagging: Track resource usage and allocate costs by team or project
+
+## Comparing IaaS, PaaS, and SaaS
+
+| Feature          | IaaS                    | PaaS                       | SaaS                    |
+|------------------|-------------------------|----------------------------|-------------------------|
+| Managed by user  | OS, middleware, apps    | Applications only          | Nothing                 |
+| Managed by provider | Physical hardware   | Infrastructure + platform  | Everything              |
+| Flexibility      | Very high               | Medium                     | Low                     |
+| Control          | Maximum                 | Partial                    | Minimal                 |
+| Target users     | System administrators   | Developers                 | End users               |
+| Examples         | AWS EC2, Azure VMs      | Heroku, App Engine         | Gmail, Salesforce       |
+| Cost model       | Pay per resource used   | Pay per app/usage          | Subscription            |
+| Scalability      | Manual or auto          | Automatic                  | Provider-managed        |

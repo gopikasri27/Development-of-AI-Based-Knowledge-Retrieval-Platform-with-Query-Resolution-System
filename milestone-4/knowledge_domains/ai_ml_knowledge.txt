@@ -1,0 +1,110 @@
+# AI & Machine Learning Knowledge Base
+
+## Introduction to Artificial Intelligence
+
+Artificial Intelligence (AI) refers to the simulation of human intelligence processes by computer systems. These processes include learning (the acquisition of information and rules for using it), reasoning (using rules to reach approximate or definite conclusions), and self-correction. AI systems are built to perform tasks that would typically require human intelligence, such as visual perception, speech recognition, decision-making, and language translation.
+
+## Machine Learning
+
+Machine Learning (ML) is a subset of AI that provides systems the ability to automatically learn and improve from experience without being explicitly programmed. Machine learning focuses on the development of computer programs that can access data and use it to learn for themselves.
+
+The process begins with observations or data, such as examples, direct experience, or instruction. Machine learning algorithms learn to make better decisions over time by identifying patterns in data.
+
+### Types of Machine Learning
+
+**Supervised Learning**: The algorithm is trained on labeled data. The model learns to map input features to output labels. Examples include linear regression for continuous outputs and logistic regression for classification problems. Common algorithms: Decision Trees, Random Forests, Support Vector Machines (SVM), Neural Networks.
+
+**Unsupervised Learning**: The algorithm identifies patterns in unlabeled data. It groups similar data points without predefined categories. Common techniques: K-means clustering, Principal Component Analysis (PCA), Autoencoders.
+
+**Reinforcement Learning**: The algorithm learns by interacting with an environment and receiving rewards or penalties. Used in robotics, gaming, and autonomous systems. Examples: Q-Learning, Deep Q-Networks (DQN).
+
+**Semi-Supervised Learning**: Combines a small amount of labeled data with a large amount of unlabeled data for training. Useful when labeling data is expensive or time-consuming.
+
+## Deep Learning
+
+Deep Learning is a subset of machine learning that uses artificial neural networks with many layers (hence "deep") to learn representations of data. Deep learning has driven major advances in computer vision, speech recognition, and natural language processing.
+
+### Neural Networks
+
+A neural network is a series of algorithms that attempts to recognize underlying relationships in a set of data through a process that mimics the way the human brain operates. Neural networks are made up of layers: an input layer, one or more hidden layers, and an output layer.
+
+**Convolutional Neural Networks (CNNs)**: Specialized for processing grid-like topology such as image data. They use convolutional layers to detect local features and pooling layers to reduce dimensionality. Widely used in image classification, object detection, and medical imaging.
+
+**Recurrent Neural Networks (RNNs)**: Designed for sequential data by maintaining hidden states that capture context from previous inputs. Used in time series prediction, speech recognition, and text generation.
+
+**Transformers**: A revolutionary architecture introduced in the paper "Attention Is All You Need" (2017). Transformers use self-attention mechanisms to process input sequences in parallel. They are the foundation of modern large language models (LLMs).
+
+## Natural Language Processing (NLP)
+
+Natural Language Processing is a branch of AI that enables computers to understand, interpret, and generate human language. Key NLP tasks include tokenization, part-of-speech tagging, named entity recognition, sentiment analysis, machine translation, and question answering.
+
+### Large Language Models (LLMs)
+
+Large Language Models are deep learning models trained on massive text corpora. They can generate coherent text, answer questions, summarize documents, and perform many other language tasks. Examples: GPT-4 (OpenAI), Gemini (Google), Claude (Anthropic), LLaMA (Meta).
+
+### Semantic Search
+
+Semantic search goes beyond keyword matching to understand the intent and contextual meaning of search queries. It uses dense vector embeddings to represent both queries and documents in a high-dimensional space, then finds semantically similar matches using cosine similarity or approximate nearest neighbor search.
+
+How semantic search works:
+1. Text is converted into dense vector embeddings using models like BERT, sentence-transformers, or OpenAI embeddings.
+2. The embeddings capture the semantic meaning of the text.
+3. At query time, the query is embedded using the same model.
+4. A vector database performs nearest-neighbor search to find semantically similar documents.
+5. Results are ranked by cosine similarity score.
+
+## Embeddings
+
+Embeddings are dense vector representations of data (text, images, audio) in a continuous vector space. Words or sentences with similar meanings are placed close together in this space. Embeddings are created by training neural networks on large datasets.
+
+Popular embedding models: word2vec, GloVe, BERT, sentence-transformers (all-MiniLM-L6-v2), text-embedding-ada-002 (OpenAI).
+
+## Retrieval-Augmented Generation (RAG)
+
+RAG is an AI framework that enhances large language models by retrieving relevant information from external knowledge bases before generating responses. This approach reduces hallucination, allows the model to use up-to-date information, and provides source attribution.
+
+RAG Pipeline:
+1. User submits a query.
+2. The query is embedded into a vector.
+3. A vector store is searched for semantically similar document chunks.
+4. Retrieved chunks are injected into the LLM prompt as context.
+5. The LLM generates a grounded response based on the retrieved context.
+6. Sources are cited in the response.
+
+## Model Evaluation Metrics
+
+**Accuracy**: Proportion of correct predictions out of total predictions. Best for balanced datasets.
+
+**Precision**: Of all predicted positives, how many are actually positive. Precision = TP / (TP + FP).
+
+**Recall**: Of all actual positives, how many were predicted as positive. Recall = TP / (TP + FN).
+
+**F1-Score**: Harmonic mean of precision and recall. F1 = 2 * (Precision * Recall) / (Precision + Recall).
+
+**ROC-AUC**: Area under the Receiver Operating Characteristic curve. Measures the model's ability to distinguish between classes.
+
+**BLEU Score**: Used in NLP to evaluate translation quality by comparing generated text with reference texts.
+
+**ROUGE Score**: Used for text summarization evaluation. Measures overlap of n-grams between generated and reference summaries.
+
+## Overfitting and Underfitting
+
+**Overfitting**: The model learns training data too well, including noise. It performs well on training data but poorly on unseen data. Solutions: regularization, dropout, data augmentation, cross-validation.
+
+**Underfitting**: The model is too simple to capture underlying data patterns. It performs poorly on both training and test data. Solutions: use more complex model, increase training data, add more features.
+
+## Transfer Learning
+
+Transfer learning is a technique where a model pre-trained on a large dataset is fine-tuned on a smaller, task-specific dataset. This approach significantly reduces training time and data requirements. Popular pre-trained models: ResNet, VGG, BERT, GPT.
+
+## AI Ethics and Responsible AI
+
+Responsible AI involves developing AI systems that are fair, transparent, accountable, privacy-preserving, and safe. Key principles include:
+
+- **Fairness**: Avoiding bias in training data and model outputs
+- **Transparency**: Making AI decision-making explainable (XAI - Explainable AI)
+- **Privacy**: Protecting user data through techniques like differential privacy and federated learning
+- **Safety**: Ensuring AI systems behave safely in deployment
+- **Accountability**: Establishing clear responsibility for AI decisions
+
+Bias in AI can arise from biased training data, flawed feature selection, or inherent model limitations. Mitigation techniques include diverse training data, fairness constraints, and algorithmic auditing.

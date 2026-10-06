@@ -18,9 +18,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 m3_dir = os.path.dirname(current_dir)
 root_dir = os.path.dirname(m3_dir)
 m2_dir = os.path.join(root_dir, "milestone-2")
+m4_dir = os.path.join(root_dir, "milestone-4")
 frontend_dir = os.path.join(m3_dir, "frontend")
 
-for p in [m2_dir, m3_dir, root_dir]:
+for p in [m2_dir, m3_dir, m4_dir, root_dir]:
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -38,6 +39,13 @@ spec = importlib.util.spec_from_file_location("milestone3_orchestrator", orch_pa
 orch_mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(orch_mod)
 Milestone3Orchestrator = orch_mod.Milestone3Orchestrator
+
+try:
+    from analytics.query_analytics import QueryAnalyticsEngine
+    analytics_engine = QueryAnalyticsEngine()
+except Exception as e:
+    print(f"[Warning] Could not initialize AnalyticsEngine: {e}")
+    analytics_engine = None
 
 app = Flask(__name__)
 
@@ -186,6 +194,12 @@ def handle_query():
         clarification_response=clarification_response
     )
 
+    if analytics_engine:
+        try:
+            analytics_engine.record_query(result, session_id=session_id)
+        except Exception as e:
+            print(f"[Analytics Error] Failed to record query: {e}")
+
     return jsonify(result), 200
 
 
@@ -328,6 +342,72 @@ def handle_ingest():
             "message": "Knowledge base reset and re-indexed successfully",
             "total_chunks": vector_store.count()
         }), 200
+
+
+# ----------------------------------------------------
+# Milestone 4 Analytics Routes & Dashboard
+# ----------------------------------------------------
+
+@app.route("/analytics", methods=["GET"])
+def serve_analytics_dashboard():
+    """Serves the Milestone 4 Query Analytics Dashboard."""
+    m4_frontend = os.path.join(m4_dir, "frontend")
+    if os.path.exists(os.path.join(m4_frontend, "analytics.html")):
+        return send_from_directory(m4_frontend, "analytics.html")
+    return jsonify({"error": "Analytics dashboard template not found"}), 404
+
+
+@app.route("/api/analytics/stats", methods=["GET"])
+def get_analytics_stats():
+    """Returns aggregated query analytics statistics."""
+    if not analytics_engine:
+        return jsonify({"error": "Analytics engine not available"}), 503
+    filters = {
+        "knowledge_domain": request.args.get("domain"),
+        "query_type": request.args.get("query_type"),
+        "resolution_status": request.args.get("status"),
+        "confidence_level": request.args.get("confidence_level")
+    }
+    filters = {k: v for k, v in filters.items() if v is not None}
+    stats = analytics_engine.get_summary_stats(filters=filters)
+    return jsonify(stats), 200
+
+
+@app.route("/api/analytics/gaps", methods=["GET"])
+def get_analytics_gaps():
+    """Returns detected knowledge gaps from low-confidence / unanswered queries."""
+    if not analytics_engine:
+        return jsonify({"error": "Analytics engine not available"}), 503
+    min_freq = request.args.get("min_frequency", default=1, type=int)
+    gaps = analytics_engine.get_knowledge_gaps(min_frequency=min_freq)
+    return jsonify({"knowledge_gaps": gaps, "total_gaps": len(gaps)}), 200
+
+
+@app.route("/api/analytics/queries", methods=["GET"])
+def get_analytics_queries():
+    """Returns recent query execution logs with filtering."""
+    if not analytics_engine:
+        return jsonify({"error": "Analytics engine not available"}), 503
+    filters = {
+        "knowledge_domain": request.args.get("domain"),
+        "query_type": request.args.get("query_type"),
+        "resolution_status": request.args.get("status"),
+        "confidence_level": request.args.get("confidence_level")
+    }
+    filters = {k: v for k, v in filters.items() if v is not None}
+    limit = request.args.get("limit", default=50, type=int)
+    queries = analytics_engine.get_recent_queries(limit=limit, filters=filters)
+    return jsonify({"queries": queries, "count": len(queries)}), 200
+
+
+@app.route("/api/analytics/topics", methods=["GET"])
+def get_analytics_topics():
+    """Returns frequently asked topics."""
+    if not analytics_engine:
+        return jsonify({"error": "Analytics engine not available"}), 503
+    limit = request.args.get("limit", default=10, type=int)
+    topics = analytics_engine.get_frequently_asked_topics(limit=limit)
+    return jsonify({"frequent_topics": topics}), 200
 
 
 if __name__ == "__main__":

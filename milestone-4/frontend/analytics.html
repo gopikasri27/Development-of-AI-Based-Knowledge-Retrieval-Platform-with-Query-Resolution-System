@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Analytics & Knowledge Gap Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        /* Custom Scrollbar System */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99, 102, 241, 0.35) transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.35);
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.65);
+        }
+
+        ::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .dashboard-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .dashboard-title p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background-color: var(--accent-blue);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+        }
+
+        /* Filter Toolbar */
+        .filter-bar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-group label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .subtext {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Dashboard Main Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Bar Meters */
+        .bar-meter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .bar-track {
+            background-color: var(--bg-color);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.4s ease;
+        }
+
+        /* Knowledge Gaps List */
+        .gap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gap-item {
+            background-color: var(--bg-color);
+            border-left: 4px solid var(--accent-amber);
+            border-radius: 4px;
+            padding: 12px;
+        }
+
+        .gap-item.high-severity {
+            border-left-color: var(--accent-red);
+        }
+
+        .gap-title {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .gap-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .gap-queries {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            font-style: italic;
+            background: rgba(255,255,255,0.03);
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+
+        /* Query Log Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--bg-color);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--card-border);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-warning { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-danger  { background-color: rgba(239, 68, 68, 0.2);  color: #f87171; }
+        .badge-info    { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge-purple  { background-color: rgba(139, 92, 246, 0.2); color: #c084fc; }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+        }
+
+        .refresh-spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Query Analytics & Knowledge Gap Detection</h1>
+            <p>Milestone 4 — Real-time performance insights and knowledge base gaps</p>
+        </div>
+        <div class="header-actions">
+            <a href="/" class="btn btn-secondary">← Back to Chat</a>
+            <button class="btn" id="refreshBtn" onclick="fetchDashboardData()">↻ Refresh Data</button>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label for="filterDomain">Knowledge Domain</label>
+            <select id="filterDomain" onchange="fetchDashboardData()">
+                <option value="">All Domains</option>
+                <option value="AI/ML">AI / Machine Learning</option>
+                <option value="Cloud Computing">Cloud Computing</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="HR & Policy">HR & Policy</option>
+                <option value="General/Uncategorized">General / Uncategorized</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filterQueryType">Query Intent</label>
+            <select id="filterQueryType" onchange="fetchDashboardData()">
+                <option value="">All Intents</option>
+                <option value="factual">Factual</option>
+                <option value="procedural">Procedural</option>
+                <option value="comparative">Comparative</option>
+                <option value="ambiguous">Ambiguous</option>
+                <option value="out_of_scope">Out of Scope</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filterStatus">Resolution Status</label>
+            <select id="filterStatus" onchange="fetchDashboardData()">
+                <option value="">All Statuses</option>
+                <option value="answered">Answered</option>
+                <option value="knowledge_gap">Knowledge Gap</option>
+                <option value="clarification_needed">Clarification Needed</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="filterConfidence">Confidence Level</label>
+            <select id="filterConfidence" onchange="fetchDashboardData()">
+                <option value="">All Confidence Levels</option>
+                <option value="High">High (≥ 0.60)</option>
+                <option value="Medium">Medium (0.30 - 0.59)</option>
+                <option value="Low">Low (< 0.30)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="label">Total Queries Analyzed</span>
+            <span class="value" id="statTotalQueries">0</span>
+            <span class="subtext">Recorded in analytics database</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="label">Resolution Rate</span>
+            <span class="value" style="color: var(--accent-green);" id="statResolutionRate">0%</span>
+            <span class="subtext" id="statAnsweredCount">0 answered</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="label">Identified Knowledge Gaps</span>
+            <span class="value" style="color: var(--accent-amber);" id="statGapCount">0</span>
+            <span class="subtext">Unanswered topic clusters</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="label">Average Confidence Score</span>
+            <span class="value" style="color: var(--accent-blue);" id="statAvgConfidence">0.00</span>
+            <span class="subtext" id="statHighConfPct">0% high confidence</span>
+        </div>
+    </div>
+
+    <!-- Dashboard Main Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- Domain Breakdown -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Knowledge Domain Distribution</h2>
+            </div>
+            <div class="bar-meter-container" id="domainBars">
+                <div class="empty-state">Loading domain data...</div>
+            </div>
+        </div>
+
+        <!-- Query Type Breakdown -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Query Intent Distribution</h2>
+            </div>
+            <div class="bar-meter-container" id="typeBars">
+                <div class="empty-state">Loading query type data...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Knowledge Gaps Section -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <h2>⚠️ Identified Knowledge Base Gaps</h2>
+            <span class="subtext" style="color: var(--text-muted); font-size: 0.85rem;">Topics requiring knowledge base expansion</span>
+        </div>
+        <div class="gap-list" id="gapList">
+            <div class="empty-state">Scanning for knowledge gaps...</div>
+        </div>
+    </div>
+
+    <!-- Recent Queries Log -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Recent Query Logs</h2>
+            <span class="subtext" style="color: var(--text-muted); font-size: 0.85rem;">Showing recent query executions</span>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Query</th>
+                        <th>Domain</th>
+                        <th>Intent</th>
+                        <th>Status</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody id="queryTableBody">
+                    <tr>
+                        <td colspan="6" class="empty-state">Loading query logs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchDashboardData() {
+            const domain = document.getElementById('filterDomain').value;
+            const queryType = document.getElementById('filterQueryType').value;
+            const status = document.getElementById('filterStatus').value;
+            const confidenceLevel = document.getElementById('filterConfidence').value;
+
+            const params = new URLSearchParams();
+            if (domain) params.append('domain', domain);
+            if (queryType) params.append('query_type', queryType);
+            if (status) params.append('status', status);
+            if (confidenceLevel) params.append('confidence_level', confidenceLevel);
+
+            try {
+                // Fetch stats, gaps, and recent queries in parallel
+                const [statsRes, gapsRes, queriesRes] = await Promise.all([
+                    fetch(`/api/analytics/stats?${params.toString()}`),
+                    fetch(`/api/analytics/gaps`),
+                    fetch(`/api/analytics/queries?limit=25&${params.toString()}`)
+                ]);
+
+                if (statsRes.ok) {
+                    const stats = await statsRes.json();
+                    renderSummaryStats(stats);
+                    renderDomainDistribution(stats.by_domain, stats.total_queries);
+                    renderTypeDistribution(stats.by_type, stats.total_queries);
+                }
+
+                if (gapsRes.ok) {
+                    const gapsData = await gapsRes.json();
+                    renderKnowledgeGaps(gapsData.knowledge_gaps);
+                }
+
+                if (queriesRes.ok) {
+                    const queriesData = await queriesRes.json();
+                    renderQueryTable(queriesData.queries);
+                }
+            } catch (err) {
+                console.error("Failed to load analytics data:", err);
+            }
+        }
+
+        function renderSummaryStats(stats) {
+            document.getElementById('statTotalQueries').textContent = stats.total_queries || 0;
+            document.getElementById('statResolutionRate').textContent = `${(stats.resolution_rate * 100).toFixed(1)}%`;
+            document.getElementById('statAnsweredCount').textContent = `${stats.answered_queries} answered, ${stats.knowledge_gap_count} gaps`;
+            document.getElementById('statGapCount').textContent = stats.knowledge_gap_count || 0;
+            document.getElementById('statAvgConfidence').textContent = (stats.average_confidence || 0).toFixed(2);
+            document.getElementById('statHighConfPct').textContent = `${stats.by_confidence.High || 0} high confidence queries`;
+        }
+
+        function renderDomainDistribution(byDomain, total) {
+            const container = document.getElementById('domainBars');
+            if (!byDomain || Object.keys(byDomain).length === 0 || total === 0) {
+                container.innerHTML = '<div class="empty-state">No domain data available</div>';
+                return;
+            }
+
+            const colors = {
+                "AI/ML": "var(--accent-purple)",
+                "Cloud Computing": "var(--accent-blue)",
+                "Cybersecurity": "var(--accent-green)",
+                "HR & Policy": "var(--accent-amber)",
+                "General/Uncategorized": "#64748b"
+            };
+
+            let html = '';
+            for (const [dom, count] of Object.entries(byDomain)) {
+                const pct = ((count / total) * 100).toFixed(1);
+                const color = colors[dom] || "var(--accent-blue)";
+                html += `
+                    <div class="bar-item">
+                        <div class="bar-labels">
+                            <span>${dom}</span>
+                            <span><strong>${count}</strong> (${pct}%)</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${pct}%; background-color: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderTypeDistribution(byType, total) {
+            const container = document.getElementById('typeBars');
+            if (!byType || Object.keys(byType).length === 0 || total === 0) {
+                container.innerHTML = '<div class="empty-state">No query type data available</div>';
+                return;
+            }
+
+            const colors = {
+                "factual": "var(--accent-blue)",
+                "procedural": "var(--accent-green)",
+                "comparative": "var(--accent-purple)",
+                "ambiguous": "var(--accent-amber)",
+                "out_of_scope": "var(--accent-red)"
+            };
+
+            let html = '';
+            for (const [type, count] of Object.entries(byType)) {
+                const pct = ((count / total) * 100).toFixed(1);
+                const color = colors[type] || "var(--accent-blue)";
+                const label = type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ');
+                html += `
+                    <div class="bar-item">
+                        <div class="bar-labels">
+                            <span>${label}</span>
+                            <span><strong>${count}</strong> (${pct}%)</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="width: ${pct}%; background-color: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderKnowledgeGaps(gaps) {
+            const container = document.getElementById('gapList');
+            if (!gaps || gaps.length === 0) {
+                container.innerHTML = '<div class="empty-state">No knowledge gaps detected! All queries are currently resolved by the knowledge base.</div>';
+                return;
+            }
+
+            let html = '';
+            gaps.forEach(gap => {
+                const isHigh = gap.frequency >= 3;
+                const severityClass = isHigh ? 'high-severity' : '';
+                const severityBadge = isHigh 
+                    ? '<span class="badge badge-danger">High Impact</span>' 
+                    : '<span class="badge badge-warning">Moderate</span>';
+
+                const sampleList = gap.sample_queries.map(q => `"${q}"`).join(', ');
+
+                html += `
+                    <div class="gap-item ${severityClass}">
+                        <div class="gap-title">
+                            <span>Topic: <strong>${gap.topic}</strong></span>
+                            ${severityBadge}
+                        </div>
+                        <div class="gap-meta">
+                            <span>Domain: <strong>${gap.domain}</strong></span>
+                            <span>Frequency: <strong>${gap.frequency} unresolved query(ies)</strong></span>
+                        </div>
+                        <div class="gap-queries">
+                            💡 Sample Queries: ${sampleList}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderQueryTable(queries) {
+            const tbody = document.getElementById('queryTableBody');
+            if (!queries || queries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No matching query logs found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            queries.forEach(q => {
+                let statusBadge = '';
+                if (q.status === 'answered') statusBadge = '<span class="badge badge-success">Answered</span>';
+                else if (q.status === 'knowledge_gap') statusBadge = '<span class="badge badge-danger">Gap</span>';
+                else statusBadge = '<span class="badge badge-warning">Clarification</span>';
+
+                let confBadge = '';
+                if (q.confidence_level === 'High') confBadge = `<span class="badge badge-success">${q.confidence_score.toFixed(2)} (${q.confidence_level})</span>`;
+                else if (q.confidence_level === 'Medium') confBadge = `<span class="badge badge-warning">${q.confidence_score.toFixed(2)} (${q.confidence_level})</span>`;
+                else confBadge = `<span class="badge badge-danger">${q.confidence_score.toFixed(2)} (${q.confidence_level})</span>`;
+
+                const formattedTime = new Date(q.timestamp).toLocaleString();
+
+                html += `
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 0.8rem;">${formattedTime}</td>
+                        <td><strong>${escapeHtml(q.query_text)}</strong></td>
+                        <td>${q.domain}</td>
+                        <td><span class="badge badge-info">${q.query_type}</span></td>
+                        <td>${statusBadge}</td>
+                        <td>${confBadge}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        // Auto fetch on load
+        window.addEventListener('DOMContentLoaded', fetchDashboardData);
+    </script>
+</body>
+</html>

@@ -1,17 +1,19 @@
 # AI-Based Knowledge Retrieval Platform with Query Resolution System
 
-> ### 📌 Active Milestones: Infosys Internship – Milestone 1 & Milestone 2
+> ### 📌 Active Milestones: Infosys Internship – Milestone 1, Milestone 2, Milestone 3 & Milestone 4 (Completed)
 > 
-> *This repository contains the completed submissions for **Milestone 1** and **Milestone 2** of the Infosys Springboard Internship Project.*
+> *This repository contains the complete enterprise implementation for **Milestones 1 through 4** of the Infosys Springboard Internship Project.*
 > 
 > - **Milestone 1**: System Architecture, RAG Architecture, Web Speech API, Data Specifications, and Frontend UI Prototype.
 > - **Milestone 2**: Multi-Agent Query Resolution, Query Understanding Agent, Retrieval Agent, Response Generation Agent, Sequential Orchestration, and Automated Test Suite.
+> - **Milestone 3**: Conversation Memory Agent, Clarification Agent, Multimodal Voice Subsystem, Transparency Telemetry Panel, and Flask REST Integration.
+> - **Milestone 4**: Query Analytics & Knowledge Gap Detection Engine, Analytics Dashboard, Multi-Domain Knowledge Base Expansion (AI/ML, Cloud, Cybersecurity), Automated E2E Test Suite, System Optimizations, and Complete Documentation Suite.
 
 ---
 
 ## 🎯 Project Overview
 
-The **AI-Based Knowledge Retrieval Platform with Query Resolution System** is an enterprise-grade, full-stack knowledge retrieval solution designed to resolve user inquiries against internal documentation (PDF, DOCX, TXT, CSV). It combines **Retrieval-Augmented Generation (RAG)** with a **Multi-Agent Orchestration Pipeline** and **Multimodal Voice I/O (Web Speech API)** to deliver accurate, cited, and hallucination-free answers.
+The **AI-Based Knowledge Retrieval Platform with Query Resolution System** is an enterprise-grade, full-stack knowledge retrieval platform designed to resolve complex user inquiries against multi-domain documentation (PDF, DOCX, TXT, CSV). It combines **Retrieval-Augmented Generation (RAG)** with a **Multi-Agent Orchestration Pipeline**, **Multimodal Voice I/O**, **Transparency Telemetry**, and a **Query Analytics Engine** to deliver accurate, cited, hallucination-free answers while automatically detecting knowledge base gaps.
 
 ---
 

@@ -1,0 +1,118 @@
+CYBERSECURITY KNOWLEDGE BASE DOCUMENT
+
+1. OVERVIEW AND CORE CONCEPTS
+Cybersecurity is the practice of protecting systems, networks, programs, devices, and data from digital attacks, unauthorized access, damage, or theft. Modern cybersecurity frameworks rely on fundamental principles to establish robust security postures across organizational environments.
+
+1.1 THE CIA TRIAD
+The CIA Triad forms the foundational model for information security policies:
+- Confidentiality: Ensuring that sensitive information is accessible only to authorized users and processes. Preserved through encryption, access controls, classification labels, and strict authentication.
+- Integrity: Maintaining the accuracy, completeness, and trustworthiness of data throughout its lifecycle. Protected using cryptographic hashing (e.g., SHA-256), digital signatures, file checksums, and version control.
+- Availability: Ensuring that systems, applications, and data are timely accessible to authorized entities when needed. Maintained via redundancy, failover mechanisms, distributed denial-of-service (DDoS) mitigation, routine backups, and load balancing.
+
+1.2 AUTHENTICATION VS AUTHORIZATION
+- Authentication (AuthN): The process of verifying the identity of a user, device, or system. Common methods include passwords, biometrics, hardware tokens, and Multi-Factor Authentication (MFA). MFA requires two or more distinct verification factors: Something you know (password), Something you have (security key or SMS code), and Something you are (fingerprint or facial scan).
+- Authorization (AuthZ): The process of determining what actions, resources, or permissions an authenticated entity is allowed to access. Common access control models include:
+  - Role-Based Access Control (RBAC): Grants permissions based on defined user roles within an organization.
+  - Attribute-Based Access Control (ABAC): Evaluates fine-grained policies using user attributes, resource types, and environment conditions.
+  - Principle of Least Privilege (PoLP): Ensures entities are granted only the minimum necessary permissions required to perform their explicit functions.
+
+2. CRYPTOGRAPHY AND ENCRYPTION STANDARDS
+Cryptography secures communication in the presence of adversaries through encryption algorithms, key management, and protocol specifications.
+
+2.1 SYMMETRIC VS ASYMMETRIC ENCRYPTION
+- Symmetric Encryption: Uses a single shared secret key for both encryption and decryption. Highly efficient for bulk data protection.
+  - Standard Algorithm: Advanced Encryption Standard (AES) with key lengths of 128, 192, or 256 bits. AES-256 is the gold standard for top-secret data protection.
+  - Operational Modes: Galois/Counter Mode (GCM) provides authenticated encryption, combining confidentiality and integrity verification.
+- Asymmetric Encryption (Public-Key Cryptography): Uses a mathematically linked key pair: a public key for encryption and a private key for decryption.
+  - Common Algorithms: RSA (Rivest-Shamir-Adleman) with key sizes of 2048 or 4048 bits, and Elliptic Curve Cryptography (ECC) which offers equivalent security with significantly shorter key lengths.
+  - Use Cases: Digital signatures, key exchange, identity verification, and SSL/TLS certificates.
+
+2.2 DATA STATES AND PROTECTION
+- Data at Rest: Stored data residing on physical storage media (HDDs, SSDs, database volumes). Protected using full-disk encryption (BitLocker, FileVault), database column encryption, and AES-256 storage bucket encryption.
+- Data in Transit: Data actively moving across internal or external networks. Protected using cryptographic transport protocols like Transport Layer Security (TLS 1.3), Secure Shell (SSH), and IPsec VPNs.
+- Data in Use: Data actively undergoing processing in CPU memory. Protected using confidential computing, secure enclaves (e.g., Intel SGX, AMD SEV), and homomorphic encryption.
+
+3. NETWORK SECURITY AND DEFENSE MECHANISMS
+Network security isolates and protects network infrastructure from unauthorized access, interception, and malicious intrusions.
+
+3.1 FIREWALL TYPES AND ARCHITECTURE
+Firewalls control incoming and outgoing network traffic based on security rules:
+- Packet Filtering Firewalls: Inspect IP packet headers (source IP, destination IP, port, protocol) without analyzing payload state.
+- Stateful Inspection Firewalls: Track active network connections and session states, verifying packet validity against connection tables.
+- Next-Generation Firewalls (NGFW): Deep packet inspection firewalls capable of layer-7 application identification, integrated Intrusion Prevention Systems (IPS), and malware filtering.
+- Web Application Firewalls (WAF): Specialized reverse proxies designed to protect HTTP web applications from layer-7 attacks like SQL Injection (SQLi) and Cross-Site Scripting (XSS).
+
+3.2 INTRUSION DETECTION AND PREVENTION SYSTEMS
+- Intrusion Detection System (IDS): Passively monitors network traffic for suspicious activity and known attack signatures, generating alerts for security personnel.
+- Intrusion Prevention System (IPS): Actively inline device that inspects traffic, detects malicious activity, and immediately blocks or drops offending connections.
+- Detection Techniques: Signature-based detection (matching known threat indicators) and Anomaly-based detection (establishing baseline behavior and flagging deviations using AI/statistical models).
+
+3.3 VIRTUAL PRIVATE NETWORKS (VPN) AND SEGMENTATION
+- VPN: Encrypts network traffic between remote endpoints and corporate networks over public internet infrastructure using protocols such as WireGuard, OpenVPN, or IPsec.
+- Network Segmentation: Dividing a computer network into subnetworks (VLANs, subnets) to isolate sensitive assets and prevent lateral movement by attackers.
+
+4. COMMON CYBER THREATS AND ATTACK VECTORS
+Organizations face a diverse spectrum of modern cyber threats designed to disrupt operations, steal data, or demand ransom.
+
+4.1 SOCIAL ENGINEERING AND PHISHING
+- Phishing: Broad malicious emails designed to trick recipients into downloading malware or revealing credentials.
+- Spear Phishing: Targeted phishing attacks tailored to specific individuals or organizations using personalized context.
+- Whaling: High-profile spear phishing targeting executive officers and senior decision-makers.
+- Social Engineering: Manipulating human psychology to bypass technical security controls.
+
+4.2 MALWARE AND RANSOMWARE
+- Malware: Malicious software engineered to compromise systems. Types include viruses, worms, trojans, spyware, and rootkits.
+- Ransomware: Advanced malware that encrypts critical enterprise files and demands payment for decryption keys. Double extortion ransomware also exfiltrates data before encryption, threatening public release.
+
+4.3 APPLICATION-LEVEL ATTACKS
+- SQL Injection (SQLi): Inserting malicious SQL code into input fields to bypass authentication or execute arbitrary database queries. Mitigated using parameterized queries (prepared statements).
+- Cross-Site Scripting (XSS): Injecting malicious scripts into web applications executed within user browsers. Mitigated using context-aware output encoding and Content Security Policy (CSP) headers.
+- Man-in-the-Middle (MitM): Attackers intercepting communications between two parties to eavesdrop or modify data. Mitigated using strict TLS verification and HTTP Strict Transport Security (HSTS).
+
+4.4 DENIAL OF SERVICE (DDoS)
+- Distributed Denial-of-Service (DDoS): Flooding target applications, servers, or networks with overwhelming traffic from a botnet to cause service downtime.
+- Mitigation: Anycast DNS routing, rate limiting, CDN caching, and automated scrubbing centers (e.g., Cloudflare, AWS Shield).
+
+5. ZERO TRUST ARCHITECTURE AND MODERN SECURITY MODELS
+Traditional perimeter defense models ("castle and moat") are insufficient for cloud-native, mobile enterprise environments. Modern architectures adopt Zero Trust.
+
+5.1 ZERO TRUST PRINCIPLES
+The core motto of Zero Trust is: "Never Trust, Always Verify."
+Key Principles:
+1. Explicit Verification: Always authenticate and authorize based on all available data points (identity, location, device health, service workload).
+2. Least Privilege Access: Limit user access with Just-In-Time (JIT) and Just-Enough-Access (JEA) policies.
+3. Assume Breach: Minimize blast radius by segmenting access, encrypting all traffic, and performing continuous monitoring.
+
+5.2 MICROSEGMENTATION
+Microsegmentation divides data centers and cloud environments into logical security zones down to individual workload levels. It prevents attackers from moving laterally across internal networks if a single node is compromised.
+
+6. INCIDENT RESPONSE, SIEM, AND SECURITY OPERATIONS
+Security operations center (SOC) teams rely on structured incident response frameworks and centralized logging to detect and mitigate breaches promptly.
+
+6.1 NIST INCIDENT RESPONSE LIFECYCLE
+The National Institute of Standards and Technology (NIST) defines a four-phase incident response cycle:
+1. Preparation: Establishing incident response plans, communication channels, tooling, and employee training.
+2. Detection and Analysis: Identifying suspicious indicators of compromise (IOCs), validating incidents, and scoping impact.
+3. Containment, Eradication, and Recovery:
+   - Short-term & Long-term Containment: Isolating compromised hosts or networks to stop spread.
+   - Eradication: Removing malware, disabling compromised accounts, and closing vulnerabilities.
+   - Recovery: Restoring systems from clean backups, testing operations, and monitoring for re-infection.
+4. Post-Incident Activity: Conducting "Lessons Learned" meetings, documenting root causes, and updating security policies.
+
+6.2 SECURITY INFORMATION AND EVENT MANAGEMENT (SIEM)
+SIEM platforms collect, aggregate, analyze, and correlate log data from firewalls, servers, endpoints, databases, and network devices.
+- Functions: Log retention, real-time alert correlation, compliance reporting, and user behavior analytics (UEBA).
+- Popular SIEM Tools: Splunk, Elastic Security, Microsoft Sentinel, IBM QRadar.
+- SOAR (Security Orchestration, Automation, and Response): Automates containment playbooks (e.g., automatically isolating an infected laptop upon malware detection).
+
+7. PENETRATION TESTING AND VULNERABILITY MANAGEMENT
+Proactive security testing helps identify and remediate security flaws before exploitation by malicious actors.
+
+7.1 PENETRATION TESTING TYPES
+- Black Box Testing: Testers have no prior knowledge of the target internal system infrastructure.
+- White Box Testing: Testers have full access to source code, network diagrams, and system documentation.
+- Gray Box Testing: Testers have partial knowledge, such as user credentials or basic network topography.
+
+7.2 VULNERABILITY SCANNING VS PENETRATION TESTING
+- Vulnerability Scanning: Automated, recurring scans that scan systems for known vulnerabilities (CVEs) and configuration flaws (e.g., using Nessus or Qualys).
+- Penetration Testing: Simulated manual cyberattacks executed by authorized ethical hackers to exploit vulnerabilities and demonstrate practical risk impact.

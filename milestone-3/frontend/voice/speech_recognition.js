@@ -10,7 +10,7 @@ class VoiceInputController {
     this.onResult = options.onResult || (() => {});
     this.onError = options.onError || (() => {});
     this.onEnd = options.onEnd || (() => {});
-    this.lang = options.lang || (navigator.language ? navigator.language : 'en-US');
+    this.lang = options.lang || 'en-IN';
 
     this.recognition = null;
     this.isListening = false;
