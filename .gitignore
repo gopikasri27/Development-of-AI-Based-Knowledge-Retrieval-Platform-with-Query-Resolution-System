@@ -5,7 +5,6 @@ __pycache__/
 
 # Environment variables & secrets
 .env
-backend/.env
 .env.local
 
 # Virtual environments
@@ -14,22 +13,27 @@ venv/
 env/
 ENV/
 
-# ChromaDB local vector store files
+# Local backup directory
+.backup_milestones/
+
+# Runtime data directory & vector stores
+data/*
+!data/.gitkeep
 backend/vectorstore/
 vectorstore/
-milestone-2/data/
-**/data/vectorstore/
+chroma_db/
+.chroma/
 
 # SQLite Databases & logs
 *.db
 *.sqlite3
 backend/rag_metadata.db
 
-# User uploaded files (keep uploads folder)
-backend/uploads/*
-!backend/uploads/.gitkeep
-milestone-2/knowledge_base/uploads/*
-!milestone-2/knowledge_base/uploads/.gitkeep
+# User uploaded files
+uploads/*
+!uploads/.gitkeep
+knowledge_base/uploads/*
+!knowledge_base/uploads/.gitkeep
 
 # IDE & OS files
 .vscode/
