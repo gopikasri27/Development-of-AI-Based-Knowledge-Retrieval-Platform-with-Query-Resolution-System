@@ -86,7 +86,9 @@ class ResponseGenerationAgent:
                 "confidence": {
                     "score": 0.0,
                     "label": "Low"
-                }
+                },
+                "synthesis_engine": "local_fallback",
+                "model_name": None
             }
 
         # Compute application confidence score from top retrieved chunk relevance
@@ -112,7 +114,9 @@ class ResponseGenerationAgent:
                 "confidence": {
                     "score": round(top_score, 4),
                     "label": "Low"
-                }
+                },
+                "synthesis_engine": "local_fallback",
+                "model_name": None
             }
 
         # Build unique structured sources list
@@ -131,15 +135,22 @@ class ResponseGenerationAgent:
         # Synthesize answer using Gemini LLM if available, else deterministic local generator
         q_type = query_classification.get("query_type", "factual") if query_classification else "factual"
         answer = None
+        synthesis_engine = "local_fallback"
+        used_model_name = None
 
         if self.model:
             try:
                 answer = self._generate_llm_answer(query, q_type, results)
+                if answer:
+                    synthesis_engine = "gemini"
+                    used_model_name = self.model_name
             except Exception:
                 answer = None
 
         if not answer:
             answer = self._generate_local_grounded_answer(query, q_type, results)
+            synthesis_engine = "local_fallback"
+            used_model_name = None
 
         return {
             "answer": answer,
@@ -147,7 +158,9 @@ class ResponseGenerationAgent:
             "confidence": {
                 "score": round(top_score, 4),
                 "label": confidence_label
-            }
+            },
+            "synthesis_engine": synthesis_engine,
+            "model_name": used_model_name
         }
 
     def _generate_llm_answer(self, query: str, query_type: str, results: List[Dict[str, Any]]) -> str:

@@ -204,6 +204,8 @@ class Milestone3Orchestrator:
                 "sources": [],
                 "citations": [],
                 "confidence": {"score": 0.0, "label": "Low"},
+                "synthesis_engine": None,
+                "model_name": None,
                 "transparency": {
                     "confidence_score": 0.0,
                     "confidence_label": "Low",
@@ -268,21 +270,29 @@ class Milestone3Orchestrator:
                 "duration_ms": round((time.time() - t4) * 1000, 2),
                 "details": {
                     "confidence_score": generation_output["confidence"]["score"],
-                    "confidence_label": generation_output["confidence"]["label"]
+                    "confidence_label": generation_output["confidence"]["label"],
+                    "synthesis_engine": generation_output.get("synthesis_engine", "local_fallback"),
+                    "model_name": generation_output.get("model_name")
                 }
             })
         except Exception as e:
             generation_output = {
                 "answer": INSUFFICIENT_INFO_MESSAGE,
                 "sources": [],
-                "confidence": {"score": 0.0, "label": "Low"}
+                "confidence": {"score": 0.0, "label": "Low"},
+                "synthesis_engine": "local_fallback",
+                "model_name": None
             }
             telemetry_steps.append({
                 "step": 5,
                 "agent": "Response Generation Agent",
                 "status": "error_fallback",
                 "duration_ms": round((time.time() - t4) * 1000, 2),
-                "error": str(e)
+                "error": str(e),
+                "details": {
+                    "synthesis_engine": "local_fallback",
+                    "model_name": None
+                }
             })
 
         # -------------------------------------------------------------
@@ -343,6 +353,8 @@ class Milestone3Orchestrator:
             "sources": generation_output.get("sources", []),
             "citations": citations,
             "confidence": confidence,
+            "synthesis_engine": generation_output.get("synthesis_engine", "local_fallback"),
+            "model_name": generation_output.get("model_name"),
             "transparency": transparency_panel_data,
             "telemetry": {
                 "pipeline_steps": telemetry_steps,
