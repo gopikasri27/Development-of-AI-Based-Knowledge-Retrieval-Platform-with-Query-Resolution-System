@@ -42,7 +42,7 @@ vector_store = VectorStoreManager(
     collection_name="milestone2_knowledge_base",
     persist_directory=os.path.join(data_dir, "vectorstore")
 )
-orchestrator = MultiAgentOrchestrator()
+orchestrator = MultiAgentOrchestrator(vector_store=vector_store)
 
 
 def initialize_default_knowledge_base():

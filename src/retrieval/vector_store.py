@@ -222,9 +222,9 @@ class VectorStoreManager:
             raw_scores = np.dot(self.embeddings, q_vec)
             if not os.environ.get("GEMINI_API_KEY"):
                 # Scale fallback scores to compensate for query-document length disparity
-                # Suppress incidental low overlap (< 0.10)
+                # Suppress incidental low overlap (< 0.13)
                 scores = np.where(
-                    raw_scores < 0.10,
+                    raw_scores < 0.13,
                     np.maximum(0.0, raw_scores * 0.5),
                     np.clip(raw_scores * 2.1, 0.0, 1.0)
                 )

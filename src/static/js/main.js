@@ -539,6 +539,49 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Mobile Sidebar Drawer Controls
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+  const sidebarCloseBtn = document.getElementById("sidebarCloseBtn");
+  const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add("open");
+    if (sidebarBackdrop) sidebarBackdrop.classList.add("open");
+    document.body.classList.add("sidebar-open");
+  }
+
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove("open");
+    if (sidebarBackdrop) sidebarBackdrop.classList.remove("open");
+    document.body.classList.remove("sidebar-open");
+  }
+
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener("click", () => {
+      if (sidebar && sidebar.classList.contains("open")) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+  }
+
+  if (sidebarCloseBtn) sidebarCloseBtn.addEventListener("click", closeSidebar);
+  if (sidebarBackdrop) sidebarBackdrop.addEventListener("click", closeSidebar);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSidebar();
+  });
+
+  if (queryInput) {
+    queryInput.addEventListener("focus", () => {
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 300);
+    });
+  }
+
   // Helpers
   function escapeHtml(text) {
     const div = document.createElement("div");

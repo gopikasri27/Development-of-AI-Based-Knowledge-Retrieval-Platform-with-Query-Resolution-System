@@ -165,7 +165,7 @@ class TestResponseGenerationAgent(unittest.TestCase):
         self.assertEqual(response["confidence"]["score"], 0.0)
 
     def test_low_confidence_retrieval_guardrail(self):
-        """Validates that retrieval scores below 0.30 threshold trigger low confidence guidance"""
+        """Validates that retrieval scores below 0.15 threshold trigger low confidence guidance"""
         query = "random query with irrelevant match"
         query_classification = {
             "query": query,
@@ -182,7 +182,7 @@ class TestResponseGenerationAgent(unittest.TestCase):
                     "page": 1,
                     "section": "General",
                     "chunk_id": "hr_policy.txt_chunk_0",
-                    "relevance_score": 0.20 # Below 0.30 threshold
+                    "relevance_score": 0.10 # Below 0.15 threshold
                 }
             ],
             "result_count": 1

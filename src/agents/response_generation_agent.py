@@ -95,13 +95,13 @@ class ResponseGenerationAgent:
         top_score = float(results[0].get("relevance_score", 0.0))
         if top_score >= 0.60:
             confidence_label = "High"
-        elif top_score >= 0.30:
+        elif top_score >= 0.15:
             confidence_label = "Medium"
         else:
             confidence_label = "Low"
 
         # If highest score is below 0.30 threshold, request clarification
-        if top_score < 0.30:
+        if top_score < 0.15:
             clarification_msg = (
                 f"**Clarification Requested:** The closest retrieved passage had a low relevance score ({round(top_score * 100, 1)}%).\n\n"
                 "**Suggestions:**\n"
@@ -218,9 +218,19 @@ Grounded Answer:"""
         Extracts relevant facts directly from retrieved chunks and presents them coherently.
         """
         top_chunk = results[0]
-        top_content = top_chunk.get("content", "").strip()
         doc_name = top_chunk.get("document_name", "document")
         sec_name = top_chunk.get("section", "Overview")
+
+        relevant_contents = []
+        for r in results[:3]:
+            if r.get("document_name") == doc_name or r.get("relevance_score", 0) >= 0.20:
+                c = r.get("content", "").strip()
+                if c and c not in relevant_contents:
+                    relevant_contents.append(c)
+        if not relevant_contents:
+            relevant_contents = [top_chunk.get("content", "").strip()]
+
+        top_content = "\n\n".join(relevant_contents)
 
         if query_type == "procedural":
             # Extract procedural steps or lines

@@ -13,19 +13,23 @@
 <body>
   <div class="app-container">
     <!-- Sidebar: Knowledge Ingestion, Recent Conversations, System Stats -->
-    <aside class="sidebar">
+    <!-- Sidebar: Knowledge Ingestion, Recent Conversations, System Stats -->
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <div class="logo-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
+        <div class="brand-header-left">
+          <div class="logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>AI Knowledge Assistant</h1>
+            <span class="badge">Milestone 4 Pipeline</span>
+          </div>
         </div>
-        <div class="brand-text">
-          <h1>AI Knowledge Assistant</h1>
-          <span class="badge">Milestone 4 Pipeline</span>
-          <a href="/analytics" target="_blank" style="margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; font-size: 0.8rem; text-decoration: none; font-weight: 500;">📊 Analytics Dashboard →</a>
-        </div>
+        <button id="sidebarCloseBtn" class="sidebar-close-btn" aria-label="Close Sidebar" title="Close Sidebar">✕</button>
       </div>
+      <a href="/analytics" target="_blank" class="analytics-link">📊 Analytics Dashboard →</a>
 
       <!-- Document Ingestion Panel -->
       <section class="ingestion-section">
@@ -113,10 +117,20 @@
         </div>
       </section>
     </aside>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
     <!-- Main Chat Workspace -->
     <main class="chat-workspace">
       <header class="workspace-header">
+        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" aria-label="Toggle Knowledge Base Sidebar" title="Open Knowledge Base & Documents">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span class="sidebar-toggle-text">Docs</span>
+        </button>
+
         <div class="header-info">
           <h2>Query Resolution System</h2>
           <p class="header-subtitle">Memory • Clarification • Grounded Citations • Voice I/O • Transparency</p>

@@ -155,7 +155,7 @@ class TestRetrievalAgent(unittest.TestCase):
                 self.assertEqual(len(embs[0]), EMBEDDING_DIM)
                 mock_embed.assert_called_once()
                 call_args = mock_embed.call_args[1]
-                self.assertEqual(call_args["model"], "models/embedding-001")
+                self.assertEqual(call_args["model"], "models/gemini-embedding-001")
                 self.assertEqual(call_args["content"], ["Test sentence for embedding"])
 
     def test_gemini_embedding_fallback_on_api_error(self):

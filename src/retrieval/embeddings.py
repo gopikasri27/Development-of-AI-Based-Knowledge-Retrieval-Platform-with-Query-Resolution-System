@@ -13,8 +13,17 @@ import hashlib
 from typing import List, Optional
 import numpy as np
 
-DEFAULT_MODEL_NAME = "models/embedding-001"
+import logging
+
+logger = logging.getLogger("embeddings")
+
+DEFAULT_MODEL_NAME = "models/gemini-embedding-001"
 EMBEDDING_DIM = 768
+CANDIDATE_EMBEDDING_MODELS = [
+    "models/gemini-embedding-001",
+    "models/text-embedding-004",
+    "models/embedding-001"
+]
 
 
 def _get_deterministic_embedding(text: str, dim: int = EMBEDDING_DIM) -> List[float]:
@@ -75,7 +84,7 @@ def generate_embeddings(
 ) -> List[List[float]]:
     """
     Generates normalized 768-d dense vector embeddings using Google's
-    gemini-embedding-001 API (models/embedding-001) or deterministic fallback.
+    Gemini embedding API (models/gemini-embedding-001) or deterministic fallback.
     """
     if not texts:
         return []
@@ -86,38 +95,64 @@ def generate_embeddings(
             import google.generativeai as genai
             genai.configure(api_key=api_key)
 
-            target_model = model_name
-            if not target_model.startswith("models/"):
-                target_model = f"models/{target_model}"
+            candidate_models = [model_name]
+            for m in CANDIDATE_EMBEDDING_MODELS:
+                if m not in candidate_models and f"models/{m}" not in candidate_models:
+                    candidate_models.append(m)
 
-            results = []
-            batch_size = 50
-            for i in range(0, len(texts), batch_size):
-                batch = texts[i:i + batch_size]
-                response = genai.embed_content(
-                    model=target_model,
-                    content=batch,
-                    task_type=task_type
-                )
-                embeddings = response.get("embedding", [])
-                # If single embedding returned for 1-item batch
-                if len(batch) == 1 and embeddings and isinstance(embeddings[0], (int, float)):
-                    embeddings = [embeddings]
+            for target_model in candidate_models:
+                if not target_model.startswith("models/"):
+                    target_model = f"models/{target_model}"
 
-                for emb in embeddings:
-                    arr = np.array(emb, dtype=np.float32)
-                    norm = np.linalg.norm(arr)
-                    if norm > 0:
-                        arr /= norm
-                    results.append(arr.tolist())
+                try:
+                    results = []
+                    batch_size = 50
+                    for i in range(0, len(texts), batch_size):
+                        batch = texts[i:i + batch_size]
 
-            if len(results) == len(texts):
-                return results
-        except Exception:
-            # Fall back gracefully to deterministic embedding
-            pass
+                        # Attempt with task_type and output_dimensionality
+                        try:
+                            response = genai.embed_content(
+                                model=target_model,
+                                content=batch,
+                                task_type=task_type,
+                                output_dimensionality=EMBEDDING_DIM
+                            )
+                        except Exception:
+                            # Fallback without task_type or output_dimensionality
+                            response = genai.embed_content(
+                                model=target_model,
+                                content=batch
+                            )
+
+                        embeddings = response.get("embedding", [])
+                        if len(batch) == 1 and embeddings and isinstance(embeddings[0], (int, float)):
+                            embeddings = [embeddings]
+
+                        for emb in embeddings:
+                            if len(emb) > EMBEDDING_DIM:
+                                emb = emb[:EMBEDDING_DIM]
+                            elif len(emb) < EMBEDDING_DIM:
+                                emb = emb + [0.0] * (EMBEDDING_DIM - len(emb))
+
+                            arr = np.array(emb, dtype=np.float32)
+                            norm = np.linalg.norm(arr)
+                            if norm > 0:
+                                arr /= norm
+                            results.append(arr.tolist())
+
+                    if len(results) == len(texts):
+                        logger.info(f"[Embeddings] Generated {len(results)} embeddings successfully with model {target_model}")
+                        return results
+                except Exception as model_err:
+                    logger.warning(f"[Embeddings] Failed embedding batch with {target_model}: {model_err}")
+                    continue
+
+        except Exception as e:
+            logger.warning(f"[Embeddings] Gemini embedding API failure: {e}. Using deterministic fallback.")
 
     # Fallback to deterministic normalized embeddings
+    logger.debug(f"[Embeddings] Using deterministic normalized fallback embeddings for {len(texts)} text(s).")
     return [_get_deterministic_embedding(t, dim=EMBEDDING_DIM) for t in texts]
 
 

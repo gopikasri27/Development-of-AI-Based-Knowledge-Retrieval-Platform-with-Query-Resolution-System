@@ -64,7 +64,24 @@ def extract_sections_and_chunk(
     current_section_lines: List[str] = []
 
     for line in lines:
-        match = re.match(r"^(?:#{1,3})\s+(.+)$", line.strip())
+        stripped = line.strip()
+        # Match markdown headings: # Title, ## Title, ### Title
+        match = re.match(r"^(?:#{1,3})\s+(.+)$", stripped)
+        # Also match numbered section headings: "1. TITLE", "1.1 TITLE", "5. ZERO TRUST..."
+        if not match:
+            num_match = re.match(r"^(\d+(?:\.\d+)*)\.?\s+([A-Z][A-Za-z0-9\s,&\-\(\)/]{3,})$", stripped)
+            if num_match and ":" not in stripped:
+                title_part = num_match.group(2).strip()
+                upper_count = sum(1 for c in title_part if c.isupper())
+                lower_count = sum(1 for c in title_part if c.islower())
+                if upper_count > lower_count:
+                    heading_str = f"{num_match.group(1)} {title_part}"
+                    class _FakeMatch:
+                        def __init__(self, g1):
+                            self._g1 = g1
+                        def group(self, n):
+                            return self._g1
+                    match = _FakeMatch(heading_str)
         if match:
             if current_section_lines:
                 sec_text = "\n".join(current_section_lines).strip()

@@ -13,7 +13,10 @@ Orchestrates the full multi-agent query resolution pipeline:
 import time
 import os
 import sys
+import logging
 from typing import Dict, Any, Optional
+
+logger = logging.getLogger("orchestrator")
 
 # Ensure src root is in sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,13 +51,14 @@ class Milestone3Orchestrator:
         query_agent: Optional[QueryUnderstandingAgent] = None,
         clarification_agent: Optional[ClarificationAgent] = None,
         retrieval_agent: Optional[RetrievalAgent] = None,
-        response_agent: Optional[ResponseGenerationAgent] = None
+        response_agent: Optional[ResponseGenerationAgent] = None,
+        vector_store=None
     ):
         self.memory_store = memory_store or ConversationMemory()
         self.memory_agent = memory_agent or ConversationMemoryAgent(memory_store=self.memory_store)
         self.query_agent = query_agent or QueryUnderstandingAgent()
         self.clarification_agent = clarification_agent or ClarificationAgent()
-        self.retrieval_agent = retrieval_agent or RetrievalAgent()
+        self.retrieval_agent = retrieval_agent or RetrievalAgent(vector_store=vector_store)
         self.response_agent = response_agent or ResponseGenerationAgent()
 
     def process_query(
@@ -135,6 +139,7 @@ class Milestone3Orchestrator:
                     "confidence": classification_confidence
                 }
             })
+            logger.info("[QueryUnderstanding] query='%s' type=%s confidence=%.2f", resolved_query[:50], classified_type, classification_confidence)
         except Exception as e:
             query_classification = {
                 "query": resolved_query,
@@ -232,6 +237,7 @@ class Milestone3Orchestrator:
             chunks_found = retrieved_data.get("result_count", 0)
             top_relevance = retrieved_data["results"][0]["relevance_score"] if retrieved_data.get("results") else 0.0
 
+            source_names = list(dict.fromkeys(r.get("document_name", "unknown") for r in retrieved_data.get("results", [])))
             telemetry_steps.append({
                 "step": 4,
                 "agent": "Retrieval Agent",
@@ -242,6 +248,7 @@ class Milestone3Orchestrator:
                     "top_relevance": top_relevance
                 }
             })
+            logger.info("[Retrieval] retrieved=%d chunks top_relevance=%.4f sources=%s", chunks_found, top_relevance, source_names)
         except Exception as e:
             retrieved_data = {"query": resolved_query, "results": [], "result_count": 0}
             telemetry_steps.append({
@@ -251,6 +258,7 @@ class Milestone3Orchestrator:
                 "duration_ms": round((time.time() - t3) * 1000, 2),
                 "error": str(e)
             })
+            logger.warning("[Retrieval] Error: %s", str(e))
 
         # -------------------------------------------------------------
         # STEP 5: Response Generation Agent (M2.3)
@@ -263,6 +271,9 @@ class Milestone3Orchestrator:
                 retrieved_data=retrieved_data
             )
 
+            engine = generation_output.get("synthesis_engine", "local_fallback")
+            model = generation_output.get("model_name")
+            conf_label = generation_output.get("confidence", {}).get("label")
             telemetry_steps.append({
                 "step": 5,
                 "agent": "Response Generation Agent",
@@ -270,11 +281,12 @@ class Milestone3Orchestrator:
                 "duration_ms": round((time.time() - t4) * 1000, 2),
                 "details": {
                     "confidence_score": generation_output["confidence"]["score"],
-                    "confidence_label": generation_output["confidence"]["label"],
-                    "synthesis_engine": generation_output.get("synthesis_engine", "local_fallback"),
-                    "model_name": generation_output.get("model_name")
+                    "confidence_label": conf_label,
+                    "synthesis_engine": engine,
+                    "model_name": model
                 }
             })
+            logger.info("[ResponseGen] engine=%s model=%s confidence=%s", engine, model, conf_label)
         except Exception as e:
             generation_output = {
                 "answer": INSUFFICIENT_INFO_MESSAGE,
@@ -294,6 +306,7 @@ class Milestone3Orchestrator:
                     "model_name": None
                 }
             })
+            logger.warning("[ResponseGen] Error: %s", str(e))
 
         # -------------------------------------------------------------
         # STEP 6: Response Transparency Panel Metadata Preparation (M3.4)
@@ -316,7 +329,7 @@ class Milestone3Orchestrator:
                 "excerpt": r.get("content", "")
             })
 
-        insufficient_evidence = len(citations) == 0 or confidence["score"] < 0.30
+        insufficient_evidence = len(citations) == 0 or confidence["score"] < 0.15
 
         transparency_panel_data = {
             "confidence_score": confidence.get("score", 0.0),
