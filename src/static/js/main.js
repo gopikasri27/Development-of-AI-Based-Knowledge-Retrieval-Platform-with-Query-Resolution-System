@@ -86,6 +86,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (vectorStoreStatus) {
           vectorStoreStatus.textContent = `${data.vector_store} (${data.total_chunks_indexed} chunks)`;
         }
+        const embeddingStatus = document.getElementById("embeddingStatus");
+        if (embeddingStatus && data.embedding_provider) {
+          embeddingStatus.textContent = data.embedding_provider;
+        }
         if (llmEngineStatus) {
           llmEngineStatus.textContent = data.gemini_api_configured ? "Gemini 1.5 Flash" : "Local Synthesis";
         }

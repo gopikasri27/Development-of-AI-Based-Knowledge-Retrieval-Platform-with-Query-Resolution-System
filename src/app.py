@@ -210,7 +210,7 @@ def handle_memory(session_id):
 @app.route("/upload", methods=["POST"])
 @app.route("/api/upload", methods=["POST"])
 def handle_upload():
-    """Accepts document upload, extracts text, chunks, and indexes into ChromaDB."""
+    """Accepts document upload, extracts text, chunks, and indexes into NumPy vector store."""
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded in request."}), 400
 
@@ -272,7 +272,8 @@ def handle_upload():
         "chunks_indexed": chunks_count,
         "total_chunks": vector_store.count(),
         "file_size": os.path.getsize(save_path),
-        "file_type": ext
+        "file_type": ext,
+        "storage_notice": "In-memory vector store: uploaded documents are available for the active session and will reset if the cloud service restarts."
     }), 200
 
 
@@ -307,10 +308,12 @@ def health_check():
     """Returns API health status and indexed vector store metadata."""
     indexed_docs = vector_store.get_indexed_documents()
     total_chunks = vector_store.count()
+    embedding_provider = "gemini-embedding-001" if os.environ.get("GEMINI_API_KEY") else "local-hash-fallback"
     return jsonify({
         "status": "healthy",
         "service": "AI-Based Knowledge Retrieval Platform",
-        "vector_store": "ChromaDB HNSW",
+        "vector_store": "NumPy Cosine Vector Store",
+        "embedding_provider": embedding_provider,
         "total_chunks_indexed": total_chunks,
         "total_chunks": total_chunks,
         "gemini_api_configured": bool(os.environ.get("GEMINI_API_KEY")),
